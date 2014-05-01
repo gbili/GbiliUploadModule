@@ -1,0 +1,29 @@
+{
+    "name":        "gbili/gbili-upload-module",
+    "description": "Zend Framework 2 Module that provides view helpers",
+    "type":        "library",
+    "license":     "MIT",
+    "homepage":    "http://gbili.com",
+    "keywords":    [
+        "upload",
+        "module",
+        "zf2"
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php":                                ">=5.3.3"
+    },
+    "require-dev": {
+        "zendframework/zendframework": "~2.2"
+    },
+    "autoload": {
+        "psr-0": {
+            "GbiliUploadModule\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    }
+}

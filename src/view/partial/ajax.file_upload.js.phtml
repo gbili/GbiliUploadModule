@@ -1,0 +1,184 @@
+<?php if (!isset($view)) : ?>
+    <?php throw new \Exception('You need to set the $view variable in order to use this script') ?>
+<?php endif ?>
+
+<?php $view->scriptalicious()->addSrc('jQuery', '/js/jquery-ui-1.10.4.custom.min.js') ?>
+<?php $view->scriptalicious()->addSrc('jquery_form', '/js/jquery.form.js')
+    ->addDependency('jquery_form', 'jQuery') ?>
+
+<?php $fileInputName          = $this->getService()->getFileInputName() ?>
+<?php $formId                 = $this->getService()->getFormId() ?>
+<?php $messageUploadComplete  = $view->translate('Complete!') ?>
+<?php $messageUploading       = $view->translate('Uploading...') ?>
+<?php $messageReset           = $view->translate('Click the "Upload" button when you are ready.') ?>
+<?php $messageNoFilesSelected = $view->translate('You need to click "Browse" button, and select some files to upload.') ?>
+
+<?php ob_start()?>
+<script type="text/javascript">
+/* Filename: <?= __FILE__ ?> */
+var progressInterval;
+
+function getProgress() {
+    // Poll our controller action with the progress id
+    var url = '/upload_progress.php?id=' + $('#progress_key').val();
+    $.getJSON(url, function(data) {
+        if (data.status && !data.status.done) {
+            var value = Math.floor((data.status.current / data.status.total) * 100);
+            showProgress(value, '<?= $messageUploading ?>');
+        } else {
+            showProgress(100, '<?= $messageUploadComplete ?>');
+            clearInterval(progressInterval);
+        }
+    });
+}
+
+function gbiliUploaderResetProgress() {
+    $('#gbiliuploader-progress .progress .progress-bar').width('0%');
+    $('#gbiliuploader-progress > p').html('<?= $messageReset ?>');
+    gbiliUploaderProgressNormal();
+}
+
+function gbiliUploaderProgressFlagAs(flag) {
+    $('#gbiliuploader-progress .progress .progress-bar')
+        .removeClass('progress-bar-primary')
+        .addClass('progress-bar-' + flag);
+}
+
+function gbiliUploaderProgressUploadAllErrors() {
+    gbiliUploaderProgressFlagAs('danger');
+}
+
+function gbiliUploaderProgressUploadPartialSuccess() {
+    gbiliUploaderProgressFlagAs('warning');
+}
+
+function gbiliUploaderProgressUploadSuccess() {
+    gbiliUploaderProgressFlagAs('success');
+}
+
+function gbiliUploaderProgressNormal() {
+    $('#gbiliuploader-progress .progress .progress-bar')
+        .removeClass('progress-bar-success')
+        .removeClass('progress-bar-warning')
+        .addClass('progress-bar-primary');
+}
+
+function startProgress() {
+    showProgress(0, 'Starting upload...');
+    progressInterval = setInterval(getProgress, 900);
+}
+
+function showProgress(amount, message) {
+    $('#gbiliuploader-progress').show();
+    $('#gbiliuploader-progress .progress .progress-bar').width(amount + '%');
+    $('#gbiliuploader-progress > p').html(message);
+}
+
+// TODO XSS 
+function showMessages(messages) {
+    var message = '';
+    <?php //Either add the messages in the popup or in the messages container ?>
+    var container = $('#<?= (($this->service->isFormDisplayedAsPopup())? $this->popupDivId . ' .messages' : 'messages')?>');
+
+    for( key in messages ) {
+        dismissButton = '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>';
+        message = '<div class="alert alert-dismissable alert-' + messages[key].class + '">' + dismissButton + '<p><strong>' + messages[key].fileName + '</strong>: ' + messages[key].message + '</p></div>';
+        container.html(container.html() + message);
+    }
+}
+
+// Clear the file input, otherwise the same file gets re-uploaded
+// http://stackoverflow.com/a/1043969
+function gbiliUploaderResetFileInput() {
+    var fileInput = $('#<?= $fileInputName ?>');
+    fileInput.replaceWith(fileInput.val('').clone( true ) );
+}
+
+function gbiliUploaderUploadSuccess (response) {
+    gbiliUploaderProgressUploadSuccess();
+    showMessages(response.messages);
+};
+
+function gbiliUploaderUploadPartialSuccess (response) {
+    gbiliUploaderProgressUploadPartialSuccess();
+    showMessages(response.messages);
+};
+
+function gbiliUploaderUploadFail (response) {
+    gbiliUploaderProgressUploadAllErrors();
+    showMessages(response.messages);
+};
+
+var gbiliUploaderUploadSuccessCallback = function (response) {
+    gbiliUploaderUploadSuccess(response);
+};
+
+var gbiliUploaderUploadPartialSuccessCallback = function (response) {
+    gbiliUploaderUploadPartialSuccess(response);
+};
+
+var gbiliUploaderUploadFailCallback = function (response) {
+    gbiliUploaderUploadFail(response);
+};
+
+function gbiliUploaderSetEventListenerClickBrowseButton() {
+    // Register a on click event on the file input button.
+    var buttonBrowse = $('#<?= $fileInputName ?>')[0];
+    if (buttonBrowse.addEventListener) {
+        buttonBrowse.addEventListener('click', gbiliUploaderResetProgress, false); 
+    } else if (buttonBrowse.attachEvent)  {
+        buttonBrowse.attachEvent('onclick', gbiliUploaderResetProgress);
+    }
+}
+
+$(function() {
+    // Register a 'submit' event listener on the form to perform the AJAX POST
+    $('#<?= $formId ?>').on('submit', function(e) {
+        e.preventDefault();
+
+        if ($('#<?= $fileInputName ?>').val() == '') {
+            alert('<?= $messageNoFilesSelected ?>');
+            return;
+        }
+        // Perform the submit
+        //$.fn.ajaxSubmit.debug = true;
+        $(this).ajaxSubmit({
+            beforeSubmit: function(arr, $form, options) {
+                // Notify backend that submit is via ajax
+                arr.push({ name: "isAjax", value: "1" });
+            },
+            success: function (response, statusText, xhr, $form) {
+                clearInterval(progressInterval);
+                showProgress(100, 'Complete!');
+
+                gbiliUploaderResetFileInput();
+                //All files uploaded correctly
+                if (1 === response.status) {
+                    gbiliUploaderUploadSuccessCallback(response);
+                } else if (2 === response.status) {
+                    gbiliUploaderUploadPartialSuccessCallback(response);
+                } else if (0 === response.status) {
+                    gbiliUploaderUploadFailCallback(response);
+                } else {
+                    alert('Application Error, The response is not well formatted');
+                }
+
+                gbiliUploaderSetEventListenerClickBrowseButton();
+            },
+            error: function(a, b, c) {
+                // NOTE: This callback is *not* called when the form is invalid.
+                // It is called when the browser is unable to initiate or complete the ajax submit.
+                // You will need to handle validation errors in the 'success' callback.
+                console.log(a, b, c);
+            }
+        });
+        // Start the progress polling
+        startProgress();
+    });
+});
+gbiliUploaderSetEventListenerClickBrowseButton();
+</script>
+<?php $ajax_file_upload = ob_get_clean() ?>
+
+<?php $view->scriptalicious()->addInline('gbiliuploader_ajax_file_upload', $ajax_file_upload)
+           ->addDependency('gbiliuploader_ajax_file_upload', 'jquery_form') ?>

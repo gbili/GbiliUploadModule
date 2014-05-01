@@ -1,0 +1,29 @@
+<?php
+if (!isset($__VIEWFILE__)) {
+    throw new \Exception('$__VIEWFILE__ variable must be set with __FILE__ constant from the view file, in order for the partial to work.');
+}
+$fileparts = explode('/', $__VIEWFILE__);
+$action = substr(end($fileparts), 0, -6);
+$controller = prev($fileparts); 
+$title = ucfirst($action) . ' ' . ucfirst($controller);
+
+$this->headTitle($title);
+?>
+<?php if (isset($messages) && !empty($messages)) : ?>
+    <?php $messages['helper_name'] = 'fileUploadMessage'?>
+    <?php $this->notify($messages) ?>
+<?php endif ?>
+<header class="row">
+    <div class="col-sm-0 col-md-2 col-lg-2"></div>
+    <div class="col-sm-12 col-md-8 col-lg-8">
+        <h3><?php echo $this->escapeHtml($title); ?></h3>
+    </div>
+    <div class="col-sm-0 col-md-2 col-lg-2"></div>
+</header>
+<div class="row">
+    <div class="col-sm-0 col-md-2 col-lg-2"></div>
+    <div class="col-sm-12 col-md-8 col-lg-8">
+        <?= $this->uploader() ?>
+    </div>
+    <div class="col-sm-0 col-md-2 col-lg-2"></div>
+</div>
