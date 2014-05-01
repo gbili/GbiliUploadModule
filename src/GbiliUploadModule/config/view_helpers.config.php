@@ -3,6 +3,7 @@ namespace GbiliUploadModule;
 return array(
     'invokables' => array(
         'fileUploadMessage' => __NAMESPACE__ . '\View\Helper\FileUploadMessage',
+        'gbiliUploadModuleScriptPath' => __NAMESPACE__ . '\View\Helper\Scripts',
     ),
     'factories' => array(
         'uploader' => function ($viewHelperPluginManager) {
