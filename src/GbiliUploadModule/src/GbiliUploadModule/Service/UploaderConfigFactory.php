@@ -1,5 +1,5 @@
 <?php
-namespace Upload\Service;
+namespace GbiliUploadModule\Service;
 
 class UploaderConfigFactory implements \Zend\ServiceManager\FactoryInterface
 {

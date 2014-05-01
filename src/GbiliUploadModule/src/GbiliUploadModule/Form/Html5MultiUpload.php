@@ -1,5 +1,5 @@
 <?php
-namespace Upload\Form;
+namespace GbiliUploadModule\Form;
 
 use Zend\InputFilter;
 use Zend\Form\Element;

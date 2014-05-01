@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
-namespace Upload\Controller\Plugin;
+namespace GbiliUploadModule\Controller\Plugin;
 
 /**
  *
@@ -69,7 +69,7 @@ class Uploader extends \Zend\Mvc\Controller\Plugin\AbstractPlugin
         ));
     }
 
-    public function setService(\Upload\Service\Uploader $service)
+    public function setService(\GbiliUploadModule\Service\Uploader $service)
     {
         $this->service = $service;
         return $this;

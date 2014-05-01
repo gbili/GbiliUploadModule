@@ -1,5 +1,5 @@
 <?php
-namespace Upload;
+namespace GbiliUploadModule;
 
 return array(
    'driver' => array(

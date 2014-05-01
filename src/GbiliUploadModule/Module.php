@@ -1,2 +1,2 @@
 <?php
-require_once __DIR__ . '/src/Upload/Module.php';
+require_once __DIR__ . '/src/GbiliUploadModule/Module.php';

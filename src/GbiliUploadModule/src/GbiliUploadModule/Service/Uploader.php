@@ -1,5 +1,5 @@
 <?php
-namespace Upload\Service;
+namespace GbiliUploadModule\Service;
 
 class Uploader 
 {
@@ -26,7 +26,7 @@ class Uploader
 
     /**
      *
-     * @var \Upload\FileHydratorInterface
+     * @var \GbiliUploadModule\FileHydratorInterface
      */
     protected $hydrator;
 
@@ -81,12 +81,12 @@ class Uploader
     protected $files = array();
 
     /**
-     * @var \Upload\Form\Html5MultiUpload
+     * @var \GbiliUploadModule\Form\Html5MultiUpload
      */
     protected $form;
 
     /**
-     * @var \Upload\Form\Html5MultiUpload
+     * @var \GbiliUploadModule\Form\Html5MultiUpload
      */
     protected $clonableForm;
 
@@ -133,7 +133,7 @@ class Uploader
 
     public function setForm($form)
     {
-        if (!($form instanceof \Upload\Form\Html5MultiUpload)) {
+        if (!($form instanceof \GbiliUploadModule\Form\Html5MultiUpload)) {
             throw new \Exception('Form type not supported, must extend Html5MultiUpload');
         }
         $this->form = $form;
@@ -160,7 +160,7 @@ class Uploader
             $this->setFormId('gbiliuploader_upload_form');
         }
 
-        $form = new \Upload\Form\Html5MultiUpload($this->getFormName(), $options);
+        $form = new \GbiliUploadModule\Form\Html5MultiUpload($this->getFormName(), $options);
         $form->setAttribute('id', $this->getFormId());
 
         $this->clonableForm = clone $form;
@@ -458,7 +458,7 @@ class Uploader
      * Form data is passed to $hydrater->getHydratedFile($formData)
      * the method needs to return a doctrine file entity
      */
-    public function setFileHydrator(\Upload\FileHydratorInterface $hydrator)
+    public function setFileHydrator(\GbiliUploadModule\FileHydratorInterface $hydrator)
     {
         $this->hydrator = $hydrator;
         return $this;

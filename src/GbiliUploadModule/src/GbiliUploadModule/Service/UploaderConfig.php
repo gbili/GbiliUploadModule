@@ -1,5 +1,5 @@
 <?php
-namespace Upload\Service;
+namespace GbiliUploadModule\Service;
 
 class UploaderConfig implements UploaderServiceConfigInterface, UploaderControllerPluginConfigInterface
 {
@@ -10,7 +10,7 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
     const ERROR_MISSING_CONFIG_ALIAS      = 2;
 
     protected $errorMessages = array(
-          self::ERROR_MISSING_CONTROLLER_CONFIG => 'Controller impelements \Upload\ConfigKeyAwareInterface, but no controller specific configuration was found',
+          self::ERROR_MISSING_CONTROLLER_CONFIG => 'Controller impelements \GbiliUploadModule\ConfigKeyAwareInterface, but no controller specific configuration was found',
           self::ERROR_MISSING_DEFAULT_CONFIG    => 'There is no controller specific config, nor a default config',
           self::ERROR_MISSING_CONFIG_ALIAS      => "'file_uploader':'%s' config, references an alias. But no 'file_uploader':%s isset.",
     );
@@ -79,7 +79,7 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
         return $this->controllerAction;
     }
 
-    public function configureService(\Upload\Service\Uploader $service)
+    public function configureService(\GbiliUploadModule\Service\Uploader $service)
     {
         $actionRouteParams = $this->getConfigValue('service', 'form_action_route_params', false);
         if ($actionRouteParams) {
@@ -185,7 +185,7 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
         return $this->sm->get($fileHydrator);
     }
 
-    public function configureControllerPlugin(\Upload\Controller\Plugin\Uploader $plugin)
+    public function configureControllerPlugin(\GbiliUploadModule\Controller\Plugin\Uploader $plugin)
     {
         $postUploadCallback = $this->getConfigValue('controller_plugin', 'post_upload_callback', false);
         if ($postUploadCallback) {
@@ -200,6 +200,6 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
             $plugin->setRouteSuccessParams($routeSuccess);
         }
 
-        $plugin->setService($this->getServiceLocator()->get('Upload\Service\Uploader'));
+        $plugin->setService($this->getServiceLocator()->get('GbiliUploadModule\Service\Uploader'));
     }
 }

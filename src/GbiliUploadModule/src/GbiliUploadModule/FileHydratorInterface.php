@@ -1,5 +1,5 @@
 <?php
-namespace Upload;
+namespace GbiliUploadModule;
 
 interface FileHydratorInterface
 {
