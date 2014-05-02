@@ -87,9 +87,10 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
         }
 
         //TODO move this config to the view helper
-        $jsScriptPath = $this->getConfigValue('view_helper', 'include_js_script', false);
-        if ($jsScriptPath) {
+        if ($jsScriptPath = $this->getConfigValue('view_helper', 'include_js_script', false)) {
             $service->setIncludeScriptFilePath($jsScriptPath);
+        } else if ($packagedJsScriptName = $this->getConfigValue('view_helper', 'include_packaged_js_script_from_basename', false)) {
+            $service->setIncludeScriptFilePath($this->getScriptPath($packagedJsScriptName));
         }
         //TODO move this config to the view helper
         $service->displayFormAsPopup($this->getConfigValue('view_helper', 'display_form_as_popup', false));
@@ -99,6 +100,15 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
         $service->setFileHydrator($this->getServiceFileHydrator());
         $service->setFormName($this->getConfigValue('service', 'form_name', 'file_form'));
         $service->setFileInputName($this->getConfigValue('service', 'file_input_name', 'file_input'));
+    }
+
+    protected function getScriptPath($scriptBasename)
+    {
+        $path = __DIR__ . str_repeat('/..', 3) . '/view/partial' . '/' . $scriptBasename;
+        if (!file_exists($path)) {
+            throw new \Exception('Wrong partial basename provided, file does not exist path: ' . $path);
+        }
+        return $path;
     }
 
     public function getSpecificConfig()
