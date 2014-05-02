@@ -30,6 +30,7 @@ Example Config
 ==============
 
 in ``MyModule/config/module.config.php``:
+
     <?php
     return array(
         'file_uploader'   => include __DIR__ . '/file_uploader.config.php',
