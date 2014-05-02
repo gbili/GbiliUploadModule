@@ -4,7 +4,6 @@
     "type":        "library",
     "license":     "MIT",
     "homepage":    "http://gbili.com",
-    "version":     "0.0.1",
     "keywords":    [
         "upload",
         "module",
