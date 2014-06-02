@@ -10,7 +10,7 @@ return array(
             'popup_initial_state_hidden' => true,
         ),
         'service' => array(
-            'file_hydrator' => 'blogUploadFileHydrator',
+            'file_hydrator' => 'gbiliupmUploadFileHydrator',
             'form_action_route_params' => array(
                 'route' => 'blog_media_route',
                 'params' => array(
