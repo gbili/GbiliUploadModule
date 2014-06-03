@@ -343,7 +343,7 @@ class Uploader
             }
         }
 
-        $postData = $this->getPostData()
+        $postData = $this->getPostData();
 
         if (empty($postData)) {
             $uploadStatus = self::UPLOAD_STATUS_BAD_REQUEST;
