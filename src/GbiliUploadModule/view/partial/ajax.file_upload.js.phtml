@@ -131,7 +131,7 @@ function gbiliUploaderSetEventListenerClickBrowseButton() {
     }
 }
 
-gbili = gbili||{};
+var gbili = gbili||{};
 gbili.upm = gbili.hasOwnProperty('upm')||{};
 gbili.upm.parseBadRequestResponse = function (response) {
     var scriptRegex = /<script id="gbiliupm-badrequest-messages">(.+)<\/script>/i;
