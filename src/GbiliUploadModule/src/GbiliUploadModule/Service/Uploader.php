@@ -371,8 +371,19 @@ class Uploader
         $fileInputName = $this->getFileInputName();
         $data          = $this->getPostData();
 
-        $messages = array();
-        foreach ($data[$fileInputName] as $fileData) {
+        $messages      = array();
+        $filesPostData = isset($data[$fileInputName])
+            ? $data[$fileInputName] 
+            : array();
+
+        if (empty($filesPostData)) {
+            $messages[] = array(
+                'class' => 'danger',
+                'message' => 'Your browser does not support sending this file. Try removing "[" or "]" in file name.',
+            );
+        }
+
+        foreach ($filesPostData as $fileData) {
             $message = array();
             $singleData = array($fileInputName => $fileData);
             $fileName = $fileData['name'];
