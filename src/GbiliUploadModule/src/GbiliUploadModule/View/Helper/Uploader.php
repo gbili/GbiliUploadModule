@@ -52,9 +52,8 @@ class Uploader extends \Zend\View\Helper\AbstractHelper
     public function renderMessagesAsScriptOnBadRequest()
     {
         $service = $this->getService();
-        if ($service->isBadRequest()) {
-            $messages = $service->getMessages();
-            return '<script id="gbiliupm-badrequest-messages">' . json_encode($messages) . '</script>';
+        if ($service->isBadRequest() && $service->hasMessages()) {
+            return '<script id="gbiliupm-badrequest-messages">' . json_encode($service->getMessages()) . '</script>';
         }
         return '';
     }
