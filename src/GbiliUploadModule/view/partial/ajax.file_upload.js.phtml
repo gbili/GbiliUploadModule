@@ -145,7 +145,7 @@ $(function() {
         $(this).ajaxSubmit({
             beforeSubmit: function(arr, $form, options) {
                 // Notify backend that submit is via ajax
-                arr.push({ name: "isAjax", value: "1" });
+                arr.unshift({ name: "isAjax", value: "1" });
             },
             success: function (response, statusText, xhr, $form) {
                 clearInterval(progressInterval);

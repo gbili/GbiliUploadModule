@@ -377,10 +377,11 @@ class Uploader
             : array();
 
         if (empty($filesPostData)) {
-            $messages[] = array(
+            array_push($messages, array(
                 'class' => 'danger',
+                'fileName' => 'N/A',
                 'message' => 'Your browser does not support sending this file. Try removing "[" or "]" in file name.',
-            );
+            ));
         }
 
         foreach ($filesPostData as $fileData) {
