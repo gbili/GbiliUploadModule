@@ -52,6 +52,10 @@ class Uploader extends \Zend\Mvc\Controller\Plugin\AbstractPlugin
                 }
             }
 
+            // When there is a BadRequest (e.g. Bad file name with square brackets),
+            // there is no way to know whether it was originated from ajax or normal. 
+            // That's because there will be no post data and no "isAjax" flag.
+            // This case scenario will be passed to the normal ViewModel
             if ($fileUploader->isAjax()) {
                 return new \Zend\View\Model\JsonModel(array(
                     'status' => $fileUploader->getUploadStatus(),
@@ -62,6 +66,11 @@ class Uploader extends \Zend\Mvc\Controller\Plugin\AbstractPlugin
             }
         }
 
+        // When BadRequest arises the flow goes here even when ajax
+        // That's why there will also be a json snippet containing the
+        // error messages, that's how browsers having emitted an ajax 
+        // request will be able to parse the error messages an display
+        // them to ajax users
         return new \Zend\View\Model\ViewModel(array(
             'fileUploader' => $fileUploader,
             'messages' => ((isset($messages))? $messages : array()),

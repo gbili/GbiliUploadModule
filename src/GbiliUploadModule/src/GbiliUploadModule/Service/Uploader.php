@@ -8,6 +8,7 @@ class Uploader
      */
     const UPLOAD_STATUS_ALL_SUCCESS = 1;
     const UPLOAD_STATUS_ALL_FAIL = 0;
+    const UPLOAD_STATUS_BAD_REQUEST = 4;
     const UPLOAD_STATUS_PARTIAL_SUCCESS = 2;
 
     /**
@@ -321,6 +322,11 @@ class Uploader
         return $this->getUploadStatus() === self::UPLOAD_STATUS_ALL_SUCCESS;
     }
 
+    public function isBadRequest()
+    {
+        return $this->getUploadStatus() === self::UPLOAD_STATUS_BAD_REQUEST;
+    }
+
     public function getUploadStatus()
     {
         if (null !== $this->uploadStatus) {
@@ -337,7 +343,11 @@ class Uploader
             }
         }
 
-        if ($atLeastOneSuccess && $atLeastOneFail) {
+        $postData = $this->getPostData()
+
+        if (empty($postData)) {
+            $uploadStatus = self::UPLOAD_STATUS_BAD_REQUEST;
+        } else if ($atLeastOneSuccess && $atLeastOneFail) {
             $uploadStatus = self::UPLOAD_STATUS_PARTIAL_SUCCESS;
         } else if ($atLeastOneSuccess) {
             $uploadStatus = self::UPLOAD_STATUS_ALL_SUCCESS;

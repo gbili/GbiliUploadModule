@@ -131,6 +131,19 @@ function gbiliUploaderSetEventListenerClickBrowseButton() {
     }
 }
 
+gbili = gbili || {};
+gbili.upm = gbili.hasOwnProperty('upm') || {};
+gbili.upm.parseBadRequestResponse = function (response) {
+    var scriptRegex = /<script id="gbiliupm-badrequest-messages">(.+)<\/script>/i;
+    var matches = response.match(scriptRegex);
+    if (null === matches) {
+        alert('Application Error, The response is not well formatted');
+        return;
+    }
+    messages = JSON && JSON.parse(matches[1]) || $.parseJSON(matches[1]);
+    showMessages(messages);
+};
+
 $(function() {
     // Register a 'submit' event listener on the form to perform the AJAX POST
     $('#<?= $formId ?>').on('submit', function(e) {
@@ -160,7 +173,7 @@ $(function() {
                 } else if (0 === response.status) {
                     gbiliUploaderUploadFailCallback(response);
                 } else {
-                    alert('Application Error, The response is not well formatted');
+                    console.log(response);
                 }
 
                 gbiliUploaderSetEventListenerClickBrowseButton();

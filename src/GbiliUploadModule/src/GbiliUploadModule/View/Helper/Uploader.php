@@ -30,7 +30,33 @@ class Uploader extends \Zend\View\Helper\AbstractHelper
             $this->registerScripts();
         }
 
+        $html .= $this->renderMessagesAsScriptOnBadRequest();
+
         return $html;
+    }
+
+    /**
+     * When there is a bad request e.g. the file name contains square
+     * brackets. There will be no way to know whether the request was
+     * from ajax. If the request was originated from a normal html context,
+     * an ajax response would display an ugly page. That is why the response
+     * will be rendered with normal html, in any case. However there will
+     * be a list of errors in in the response embeded in a script, appart
+     * from the normal html list of errors. This will allow html context
+     * to handle the request normally without displaying ugly characters. 
+     * On the other hand, ajax context knows how to handle the messages
+     * contained in the returne script tag and will display those properly.
+     *
+     * @return string either script with messages or empty string
+     */
+    public function renderMessagesAsScriptOnBadRequest()
+    {
+        $service = $this->getService();
+        if ($service->isBadRequest()) {
+            $messages = $service->getMessages();
+            return '<script id="gbiliupm-badrequest-messages">' . json_encode($messages) . '</script>';
+        }
+        return '';
     }
 
     /**

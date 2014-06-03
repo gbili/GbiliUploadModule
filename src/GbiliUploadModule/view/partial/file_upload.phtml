@@ -9,6 +9,7 @@ $title = ucfirst($action) . ' ' . ucfirst($controller);
 
 $this->headTitle($title);
 ?>
+
 <?php if (isset($messages) && !empty($messages)) : ?>
     <?php $messages['helper_name'] = 'fileUploadMessage'?>
     <?php $this->notify($messages) ?>
