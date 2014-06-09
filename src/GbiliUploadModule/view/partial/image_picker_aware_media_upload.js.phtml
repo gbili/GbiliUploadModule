@@ -65,8 +65,11 @@ function gbiliUploaderInitButtonAddMedia() {
     var buttonShowPopup = '<div class="gbiliuploader-show-popup-button"><a class="btn btn-primary">+</a></div>';
     // TODO find a better unique css selector the element is ul class="thumbnails image-picker-selector"
     // I dont know how to select the element ul that has both classes.
-    var imagePickerWellContainer = $("select.image-picker").parent().parent();
-    imagePickerWellContainer.html(imagePickerWellContainer.html() + buttonShowPopup);
+    //var imagePickerWellContainer = $("select.image-picker").parent().parent();
+    //imagePickerWellContainer.html(imagePickerWellContainer.html() + buttonShowPopup);
+    var cunt = $('.gbili-add-media-button-container');
+    var butt = '<div class="gbiliuploader-show-popup-button"><a class="btn btn-primary">+</a></div>';
+    cunt.append(butt);
 
     gbiliUploaderSetEventListenerClickAddMediaButton();
 };
