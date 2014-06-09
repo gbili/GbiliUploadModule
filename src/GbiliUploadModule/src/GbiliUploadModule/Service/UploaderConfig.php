@@ -87,10 +87,13 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
         }
 
         //TODO move this config to the view helper
-        if ($jsScriptPath = $this->getConfigValue('view_helper', 'include_js_script', false)) {
+        //First dont allow to get the config from alias.
+        if ($jsScriptPath = $this->getConfigValue('view_helper', 'include_js_script', false, $allowAlias=false)) {
             $service->setIncludeScriptFilePath($jsScriptPath);
         } else if ($packagedJsScriptName = $this->getConfigValue('view_helper', 'include_packaged_js_script_from_basename', false)) {
             $service->setIncludeScriptFilePath($this->getScriptPath($packagedJsScriptName));
+        } else if ($jsScriptPath = $this->getConfigValue('view_helper', 'include_js_script', false, $allowAlias=true) {
+            $service->setIncludeScriptFilePath($jsScriptPath);
         }
         //TODO move this config to the view helper
         $service->displayFormAsPopup($this->getConfigValue('view_helper', 'display_form_as_popup', false));
@@ -173,16 +176,13 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
         return $configKey;
     }
 
-    protected function getConfigValue($for, $key, $default, $throw=false)
+    protected function getConfigValue($for, $key, $default, $allowAlias=true)
     {
         $config = $this->getSpecificConfig();
         if (isset($config[$for][$key])) {
             $value = $config[$for][$key];
-        } else if (isset($this->aliasedConfig[$for][$key])) {
+        } else if ($allowAlias && isset($this->aliasedConfig[$for][$key])) {
             $value = $this->aliasedConfig[$for][$key];
-        } else if ($throw) {
-            $message = $default;
-            throw new \Exception('Missing config key: ' . $message);
         } else {
             $value = $default;
         }
@@ -191,7 +191,10 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
 
     public function getServiceFileHydrator()
     {
-        $fileHydrator = $this->getConfigValue('service', 'file_hydrator', 'You must set a file hydrator to allow the "uploader" to save entities', $throw=true);
+        $fileHydrator = $this->getConfigValue('service', 'file_hydrator', false); 
+        if (!$fileHydrator) {
+            throw new \Exception('You must set a file hydrator to allow the "uploader" to save entities');
+        }
         return $this->sm->get($fileHydrator);
     }
 
