@@ -87,12 +87,12 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
         }
 
         //TODO move this config to the view helper
-        //First dont allow to get the config from alias.
+        //First dont allow to get the config from alias. Then try the other not from alias, then on last resort from alias
         if ($jsScriptPath = $this->getConfigValue('view_helper', 'include_js_script', false, $allowAlias=false)) {
             $service->setIncludeScriptFilePath($jsScriptPath);
         } else if ($packagedJsScriptName = $this->getConfigValue('view_helper', 'include_packaged_js_script_from_basename', false)) {
             $service->setIncludeScriptFilePath($this->getScriptPath($packagedJsScriptName));
-        } else if ($jsScriptPath = $this->getConfigValue('view_helper', 'include_js_script', false, $allowAlias=true) {
+        } else if ($jsScriptPath = $this->getConfigValue('view_helper', 'include_js_script', false, $allowAlias=true)) {
             $service->setIncludeScriptFilePath($jsScriptPath);
         }
         //TODO move this config to the view helper
