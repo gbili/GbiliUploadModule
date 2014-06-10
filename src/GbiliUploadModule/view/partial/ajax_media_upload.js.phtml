@@ -88,9 +88,9 @@ function gbiliUploaderAddImagesToMasonizeableWall(response) {
     for( key in  callbackReturn) {
         listItem = document.createElement('li');
         console.log(listItem);
-        listItem.innerHTML = '<a href=""><img class="img-responsive" src="' + callbackReturn[key].mediaSrc + '"></a>'
+        listItem.innerHTML = '<a href="' + callbackReturn[key].mediaSrc + '"><img class="img-responsive" src="' + callbackReturn[key].mediaSrc + '"></a>'
              + '<div class="caption">'
-             + '<h5></h5>'
+                 + '<h5>' + messages[key].fileName + '</h5>'
              + '</div>';
         $masonizeableList.prepend(listItem);
         $masonizeableList.masonry('prepended', listItem);
