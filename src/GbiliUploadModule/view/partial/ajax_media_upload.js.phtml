@@ -81,13 +81,13 @@ function gbiliUploaderSetEventListenerClickHidePopupButton() {
  * 1.Append the uploaded image to the image select
  * 2.Reload image-picker on select so that the new image
  * is available for select
+ * @TODO image src
  */
 function gbiliUploaderAddImagesToMasonizeableWall(response) {
     var callbackReturn = response.callbackReturn;
     var $masonizeableList = $('.brick-wall div ul[class*="please_masonize_"]');
     for( key in  callbackReturn) {
         listItem = document.createElement('li');
-        console.log(listItem);
         listItem.innerHTML = '<a href="' + callbackReturn[key].mediaSrc + '"><img class="img-responsive" src="' + callbackReturn[key].mediaSrc + '"></a>'
              + '<div class="caption">'
                  + '<h5>' + messages[key].fileName + '</h5>'
