@@ -4,11 +4,13 @@
 
 <?php $view->scriptalicious()->addSrc('jQuery', '/js/jquery-ui-1.10.4.custom.min.js') ?>
 <?php $view->scriptalicious()->addSrc('jquery_form', '/js/jquery.form.js')
-    ->addDependency('jquery_form', 'jQuery') ?>
+                             ->addDependency('jquery_form', 'jQuery') ?>
 <?php /* Make sure to copy paste gbili_event (https://github.com/gbili/event/src/gbili.js to public dir from host module */ ?>
 
 <?php $view->scriptalicious()->addSrc('gbili_event', '/js/gbili/event.js') ?>
-<?php $view->scriptalicious()->addSrc('gbili_ajaxform', '/js/gbili/ajaxform.js') ?>
+<?php $view->scriptalicious()->addSrc('gbili_ajaxform', '/js/gbili/ajaxform.js')
+                             ->addDependency('gbili_ajaxform', 'jquery_form')
+                             ->addDependency('gbili_ajaxform', 'gbili_event') ?>
 <?php $view->scriptalicious()->addSrc('gbili_poll', '/js/gbili/poll.js') ?>
 
 <?php $fileInputName          = $this->getService()->getFileInputName() ?>
