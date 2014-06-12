@@ -94,8 +94,9 @@ function gbiliUploaderAddImagesToMasonizeableWall(response) {
     };
 
     // Add listeners for responses with images
-    for (var reponseWithImage in ['success', 'partial']) {
-        gbili.event.addListener('#<?= $formId ?>.submit.success.response.valid.' + reponseWithImage, handleResponseWithImage, 2);
+    var statusesWithImageInResponse = ['success', 'partial'];
+    for (var i in statusesWithImageInResponse) {
+        gbili.event.addListener('#<?= $formId ?>.submit.success.response.valid.' + statusesWithImageInResponse[i], handleResponseWithImage, 2);
     }
     // Add event listener after popup has been changed
     gbili.event.addListener('#<?= $formId ?>.submit.success.after', function (event) {
