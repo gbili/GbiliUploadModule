@@ -69,7 +69,7 @@ function showMessages(messages) {
     gbili.event.addListener('#<?= $formId ?>.submit.start', function(event) { //startProgress
         gbili.poll.start({
             baseUrl: '/upload_progress.php/?id=', 
-            progressCssSelector: '#progress_key'
+            progressCssSelector: '#progress_key',
             showProgressCallback: function (amount, message) {
                 $('#gbiliuploader-progress').show();
                 $('#gbiliuploader-progress .progress .progress-bar').width(amount + '%');
