@@ -8,8 +8,8 @@
 <?php /* Make sure to copy paste gbili_event (https://github.com/gbili/event/src/gbili.js to public dir from host module */ ?>
 
 <?php $view->scriptalicious()->addSrc('gbili_event', '/js/gbili/event.js') ?>
-<?php $view->scriptalicious()->addSrc('gbili_event', '/js/gbili/ajaxform.js') ?>
-<?php $view->scriptalicious()->addSrc('gbili_event', '/js/gbili/poll.js') ?>
+<?php $view->scriptalicious()->addSrc('gbili_ajaxform', '/js/gbili/ajaxform.js') ?>
+<?php $view->scriptalicious()->addSrc('gbili_poll', '/js/gbili/poll.js') ?>
 
 <?php $fileInputName          = $this->getService()->getFileInputName() ?>
 <?php $formId                 = $this->getService()->getFormId() ?>
