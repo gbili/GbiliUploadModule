@@ -116,7 +116,7 @@ gbili.upm.fileUpload = (function() {
 
         var handleValidResponseEvent = function (event) {
             gbili.upm.progressBar.switchCssClass(statusToCssClassMap[event.name.split('.').pop()]);
-            gbili.upm.messages.show(event.response.messages);
+            gbili.upm.messages.show(event.params.response.messages);
         };
 
         var responseStatus;
