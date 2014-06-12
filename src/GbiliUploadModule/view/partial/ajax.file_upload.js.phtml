@@ -118,4 +118,7 @@ function showMessages(messages) {
 <?php $ajax_file_upload = ob_get_clean() ?>
 
 <?php $view->scriptalicious()->addInline('gbiliuploader_ajax_file_upload', $ajax_file_upload)
-           ->addDependency('gbiliuploader_ajax_file_upload', 'jquery_form') ?>
+           ->addDependency('gbiliuploader_ajax_file_upload', 'jquery_form')
+           ->addDependency('gbiliuploader_ajax_file_upload', 'gbili_event')
+           ->addDependency('gbiliuploader_ajax_file_upload', 'gbili_ajaxform')
+           ->addDependency('gbiliuploader_ajax_file_upload', 'gbili_poll') ?>
