@@ -72,18 +72,19 @@ gbili.upm.popup = function() {
  */
 function gbiliUploaderAddImagesToMasonizeableWall(response) {
     var callbackReturn = response.callbackReturn;
-    var $masonizeableList = $('.brick-wall div ul[class*="please_masonize_"]');
+    var messages = response.messages;
+    var masonizeableList = $('.brick-wall div ul[class*="please_masonize_"]');
     for( key in  callbackReturn) {
         listItem = document.createElement('li');
         listItem.innerHTML = '<a href="' + callbackReturn[key].mediaSrc + '"><img class="img-responsive" src="' + callbackReturn[key].mediaSrc + '"></a>'
              + '<div class="caption">'
-                 + '<h5>' + messages[key].fileName + '</h5>'
+                 + '<h5>' + response.messages[key].fileName + '</h5>'
              + '</div>';
-        $masonizeableList.prepend(listItem);
-        $masonizeableList.masonry('prepended', listItem);
+        masonizeableList.prepend(listItem);
+        masonizeableList.masonry('prepended', listItem);
     }
-    $masonizeableList.imagesLoaded(function () {
-        $masonizeableList.masonry('layout');
+    masonizeableList.imagesLoaded(function () {
+        masonizeableList.masonry('layout');
     });
 }
 
