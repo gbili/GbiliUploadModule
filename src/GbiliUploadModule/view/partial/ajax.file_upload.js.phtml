@@ -24,34 +24,14 @@
 <script type="text/javascript">
 /* Filename: <?= __FILE__ ?> */
 
-// TODO XSS 
-function showMessages(messages) {
-    var message = '';
-    <?php //Either add the messages in the popup or in the messages container ?>
-    var container = $('#<?= (($this->service->isFormDisplayedAsPopup())? $this->popupDivId . ' .messages' : 'messages')?>');
+gbili = gbili || {};
+gbili.upm = gbili.upm || {};
 
-    for( key in messages ) {
-        dismissButton = '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>';
-        message = '<div class="alert alert-dismissable alert-' + messages[key].class + '">' + dismissButton + '<p><strong>' + messages[key].fileName + '</strong>: ' + messages[key].message + '</p></div>';
-        container.html(container.html() + message);
-    }
-}
-
-(function() {
-
+gbili.upm.progressBar = function() {
     var switchCssClass,
         resetProgressBar,
-        statusToCssClassMap,
-        handleValidResponseEvent,
-        parseBadRequestResponseEvent,
-        responseStatus,
-        setEventListenerClickBrowseButton;
-
-    // Make the form Ajax capable
-    gbili.ajaxForm.create({
-        formCssSelector: '#<?= $formId ?>',
-        fileInput: $('#<?= $fileInputName ?>'),
-    });
+        showProgressCallback,
+        valueElement;
 
     switchCssClass = function (cssClass) {
         $('#gbiliuploader-progress .progress .progress-bar')
@@ -67,54 +47,96 @@ function showMessages(messages) {
         switchCssClass('primary');
     };
 
-    // Listen to the form submit start event and start polling the server for upload progress 
-    gbili.event.addListener('#<?= $formId ?>.submit.start', function(event) { //startProgress
-        gbili.poll.start({
-            baseUrl: '/upload_progress.php/?id=', 
-            progressCssSelector: '#progress_key',
-            showProgressCallback: function (amount, message) {
-                $('#gbiliuploader-progress').show();
-                $('#gbiliuploader-progress .progress .progress-bar').width(amount + '%');
-                $('#gbiliuploader-progress > p').html(message);
-            }, 
-            clrearProgresCallback: resetProgressBar,
-        });
-    });
-
-    statusToCssClassMap = {success: 'success', partial: 'warning', fail: 'danger',};
-
-    handleValidResponseEvent = function (event) {
-        switchCssClass(statusToCssClassMap[event.name.split('.').pop()]);
-        showMessages(event.response.messages);
+    showProgressCallback = function (amount, message) {
+        $('#gbiliuploader-progress').show();
+        $('#gbiliuploader-progress .progress .progress-bar').width(amount + '%');
+        $('#gbiliuploader-progress > p').html(message);
     };
 
-    // Add listeners for valid responses
-    for (responseStatus in statusToCssClassMap) {
-        gbili.event.addListener('#<?= $formId ?>.submit.success.response.valid.' + responseStatus, handleValidResponseEvent, 1);
-    }
+    return {
+        switchCssClass: switchCssClass,
+        reset: resetProgressBar,
+        show: showProgressCallback,
+        getValue: function() {
+            if (!valueElement) {
+                valueElement = $('#progress_key');
+            }
+            return valueElement.val();
+        },
+    };
+}();
 
-    parseBadRequestResponseEvent = function (event) {
-        var reponse = event.params.response;
-        var scriptRegex = /<script id="gbiliupm-badrequest-messages">(.+)<\/script>/i;
-        var matches = response.match(scriptRegex);
+gbili.upm.messages = {
+    //Either add the messages in the popup or in the messages container
+    show: function(messages) {
+        var message = '';
+        var container = $('#<?= (($this->service->isFormDisplayedAsPopup())? $this->popupDivId . ' .messages' : 'messages')?>');
+
+        for( key in messages ) {
+            dismissButton = '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>';
+            message = '<div class="alert alert-dismissable alert-' + messages[key].class + '">' + dismissButton + '<p><strong>' + messages[key].fileName + '</strong>: ' + messages[key].message + '</p></div>';
+            container.html(container.html() + message);
+        }
+    },
+
+    // If messages are packed in a script tag try to parse them and present them
+    // the json encoded string
+    showScriptTagResponse: function (event) {
+        var messages,
+            scriptRegex = /<script id="gbiliupm-badrequest-messages">(.+)<\/script>/i;
+        var matches = event.params.response.match(scriptRegex);
         if (null === matches) {
             alert('Application Error, The response is not well formatted');
             return;
         }
         messages = JSON && JSON.parse(matches[1]) || $.parseJSON(matches[1]);
-        showMessages(messages);
-    };
+        this.show(messages);
+    },
+};
 
-    gbili.event.addListener('#<?= $formId ?>.submit.success.response.notValid', parseBadRequestResponseEvent);
+gbili.upm.fileUpload = (function() {
+    
+    // Make the form Ajax capable
+    gbili.ajaxForm.create({
+        formCssSelector: '#<?= $formId ?>',
+        fileInput: $('#<?= $fileInputName ?>'),
+    });
 
-    attachEventListenerClickBrowseButton = function() {
+    // Listen to the form submit start event and start polling the server for upload progress 
+    gbili.event.addListener('#<?= $formId ?>.submit.start', function(event) { //startProgress
+        gbili.poll.start({
+            baseUrl: '/upload_progress.php/?id=', 
+            progressBar: gbili.upm.progressBar, 
+        });
+    });
+
+    //Attach valid response event listeners
+    (function () {
+        var statusToCssClassMap = {success: 'success', partial: 'warning', fail: 'danger',};
+
+        var handleValidResponseEvent = function (event) {
+            gbili.upm.progressBar.switchCssClass(statusToCssClassMap[event.name.split('.').pop()]);
+            gbili.upm.messages.show(event.response.messages);
+        };
+
+        var responseStatus;
+        // Add listeners for valid responses
+        for (responseStatus in statusToCssClassMap) {
+            gbili.event.addListener('#<?= $formId ?>.submit.success.response.valid.' + responseStatus, handleValidResponseEvent, 1);
+        }
+    })();
+
+    // Parse the script and get the messages from 
+    gbili.event.addListener('#<?= $formId ?>.submit.success.response.notValid', gbili.upm.messages.showScriptTagResponse);
+
+    onFileInputClickResetProgressBar = function() {
         // Register a on click event on the file input button.
-        $('#<?= $fileInputName ?>').on('click', resetProgressBar);
+        $('#<?= $fileInputName ?>').on('click', gbili.upm.progressBar.reset);
     };
 
-    gbili.event.addListener('#<?= $formId ?>.submit.success.after', attachEventListenerClickBrowseButton, 100);
+    gbili.event.addListener('#<?= $formId ?>.submit.success.after', onFileInputClickResetProgressBar, 100);
 
-    attachEventListenerClickBrowseButton();
+    onFileInputClickResetProgressBar();
 })();
 </script>
 <?php $ajax_file_upload = ob_get_clean() ?>

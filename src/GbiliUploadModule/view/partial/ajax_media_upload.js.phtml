@@ -9,71 +9,58 @@
 <?php ob_start() ?>
 <script type="text/javascript">
 /* Filename: <?= __FILE__ ?> */
-/*
- * When used alongside image_picker, gbiliuploader is presented as a popup
- */
-// Function that changes the popup hidden state
-function gbiliUploaderShowUploadPopup () {
-    var popupUploadForm = $('#<?= $this->popupDivId ?>')[0];
-    if (-1 !== typeof popupUploadForm.className.indexOf('hidden')) {
-        popupUploadForm.className = popupUploadForm.className.replace('hidden', '');
-    }
-}
+gbili = gbili || {};
+gbili.upm = gbili.upm || {};
 
-// Function that changes the popup hidden state
-function gbiliUploaderHideUploadPopup () {
-    var popupUploadForm = $('#<?= $this->popupDivId ?>')[0];
-    if (-1 === popupUploadForm.className.indexOf('hidden')) {
-        popupUploadForm.className = popupUploadForm.className += ' hidden'; 
-    }
-}
+gbili.upm.popup = function() {
+    var popupUploadForm = $('#<?= $this->popupDivId ?>')[0],
+        hidePopupButton,
+        showPopupButton;
 
-// Would be lazier if it were on the showPopup
-function gbiliUploaderHideAndResetPopup () {
-    gbiliUploaderHideUploadPopup();
-    //remove alerts
-    $('#<?= $this->popupDivId ?> .alert').remove();
-    gbiliUploaderResetProgress();
-}
+    //gbili.upm.popup.show
+    var show = function() {
+         if (-1 !== typeof popupUploadForm.className.indexOf('hidden')) {
+             popupUploadForm.className = popupUploadForm.className.replace('hidden', '');
+         }
+    };
 
-/*
- * Add a button to the below the image picker selector, 
- * that will trigger the popup form
- */
-function gbiliUploaderInitButtonAddMedia() {
-    /*
-     * Create the button and add it to the selector with a show listener
-     */
-    var buttonShowPopup = '<div class="gbiliuploader-show-popup-button"><a class="btn btn-primary">+</a></div>';
-    // TODO find a better unique css selector the element is ul class="thumbnails image-picker-selector"
-    // I dont know how to select the element ul that has both classes.
-    var brickWall = $(".brick-wall > div").append(buttonShowPopup);
+    //gbiliUploaderHideUploadPopup
+    var hide = function() {
+        if (-1 === popupUploadForm.className.indexOf('hidden')) {
+            popupUploadForm.className = popupUploadForm.className += ' hidden'; 
+        }
+    };
 
-    gbiliUploaderSetEventListenerClickAddMediaButton();
-};
+    //gbiliUploaderHideAndResetPopup
+    var reset = function() {
+        hide();
+        //remove alerts
+        $('#<?= $this->popupDivId ?> .alert').remove();
+        // Todo depends on progressBar
+        gbili.upm.progressBar.reset();
+    };
 
-function gbiliUploaderSetEventListenerClickAddMediaButton() {
-    // Register an onclick event on the botton
-    var buttonAddMedia = $('div.gbiliuploader-show-popup-button a.btn')[0];
-    if (buttonAddMedia.addEventListener) {
-        buttonAddMedia.addEventListener('click', gbiliUploaderShowUploadPopup, false); 
-    } else if (buttonAddMedia.attachEvent)  {
-        buttonAddMedia.attachEvent('onclick', gbiliUploaderShowUploadPopup);
-    }
-}
+    var initHideButton = function() {
+        hidePopupButton.on('click', reset); 
+    }; 
+    var initShowButton = function() {
+        showPopupButton.on('click', show); 
+    }; 
 
-/*
- * Register listeners
- * Call this every time the content of the containing div is modified
- */
-function gbiliUploaderSetEventListenerClickHidePopupButton() {
-    var hidePopupButton = $('#<?= $this->popupDivId ?> > a.gbiliuploader-hide-popup-button')[0];
-    if (hidePopupButton.addEventListener) {
-        hidePopupButton.addEventListener('click', gbiliUploaderHideAndResetPopup, false); 
-    } else if (hidePopupButton.attachEvent)  {
-        hidePopupButton.attachEvent('onclick', gbiliUploaderHideAndResetPopup);
-    }
-}
+    return {
+        show : show,
+        hide : hide,
+        reset : reset,
+        setHideButtonCssSelector : function(selector) {
+            hidePopupButton = $(selector);
+        },
+        initHideButton : initHideButton,
+        setShowButtonCssSelector : function(selector) {
+            showPopupButton = $(selector);
+        },
+        initShowButton : initShowButton
+    };
+}();
 
 /*
  * Reload Image picker with new image
@@ -100,34 +87,35 @@ function gbiliUploaderAddImagesToMasonizeableWall(response) {
     });
 }
 
-if (!gbiliUploaderUploadSuccessCallback) {
-    var gbiliUploaderUploadSuccessCallback;
-}
-gbiliUploaderUploadSuccessCallback = function (response) {
-    gbiliUploaderUploadSuccess(response);
-    gbiliUploaderAddImagesToMasonizeableWall(response);
-    gbiliUploaderSetEventListenerClickHidePopupButton();
-};
+//Attach valid response event listeners
+(function () {
+    var handleResponseWithImage = function (event) {
+        gbiliUploaderAddImagesToMasonizeableWall(event.params.response);
+    };
 
-if (!gbiliUploaderUploadFailCallback) {
-    var gbiliUploaderUploadFailCallback;
-}
-gbiliUploaderUploadFailCallback = function (response) {
-    gbiliUploaderUploadFail(response);
-    gbiliUploaderSetEventListenerClickHidePopupButton();
-};
+    // Add listeners for responses with images
+    for (var reponseWithImage in ['success', 'partial']) {
+        gbili.event.addListener('#<?= $formId ?>.submit.success.response.valid.' + reponseWithImage, handleResponseWithImage, 2);
+    }
+    // Add event listener after popup has been changed
+    gbili.event.addListener('#<?= $formId ?>.submit.success.after', function (event) {
+        gbili.upm.popup.initHideButton();
+    }, 2);
 
-if (!gbiliUploaderUploadPartialSuccessCallback) {
-    var gbiliUploaderUploadPartialSuccessCallback;
-}
-gbiliUploaderUploadPartialSuccessCallback = function (response) {
-    gbiliUploaderUploadPartialSuccess(response);
-    gbiliUploaderAddImagesToMasonizeableWall(response);
-    gbiliUploaderSetEventListenerClickHidePopupButton();
-};
+    /*
+     * Add a button to the below the image picker selector, 
+     * that will trigger the popup form
+     */
+    var createShowPopupButton = function() {
+        var buttonShowPopup = '<div class="gbiliuploader-show-popup-button"><a class="btn btn-primary">+</a></div>';
+        var brickWall = $(".brick-wall > div").append(buttonShowPopup);
+    }();
+    gbili.upm.popup.setHideButtonCssSelector('#<?= $this->popupDivId ?> > a.gbiliuploader-hide-popup-button');
+    gbili.upm.popup.setShowButtonCssSelector('div.gbiliuploader-show-popup-button a.btn');
+    gbili.upm.popup.initShowButton();
+    gbili.upm.popup.initHideButton();
+})();
 
-gbiliUploaderInitButtonAddMedia();
-gbiliUploaderSetEventListenerClickHidePopupButton();
 </script>
 <?php $add_button_to_image_picker = ob_get_clean()?>
 
