@@ -138,7 +138,12 @@ class Uploader extends \Zend\View\Helper\AbstractHelper
         }
         $form->prepare();
 
-        $this->formHtml = $view->renderForm($form);
+        $this->formHtml = $view->form()->openTag($form);
+        $this->formHtml .= $view->formFileSessionProgress();
+        foreach ($view->elementsFlatArray($form) as $element) {
+            $this->formHtml .= $view->renderElement($element);
+        } 
+        $this->formHtml .= $view->form()->closeTag();
 
         return $this->formHtml;
     }
