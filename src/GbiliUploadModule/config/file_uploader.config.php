@@ -5,7 +5,7 @@ return array(
     'ajax_media_upload' => array(
         'view_helper' => array(
             //overrides the on success 
-            'include_js_script'          => realpath(__DIR__ . '/../../GbiliUploadModule/view/partial') . '/image_picker_aware_media_upload.js.phtml', 
+            'include_js_script'          => realpath(__DIR__ . '/../../GbiliUploadModule/view/partial') . '/ajax_media_upload.js.phtml', 
             'display_form_as_popup'      => true,
             'popup_initial_state_hidden' => true,
         ),
@@ -48,6 +48,15 @@ return array(
                 }
                 return $uploadedMedias;
             },
+        ),
+    ),
+    'ajax_image_picker_media_upload' => array(
+        'alias' => 'ajax_media_upload',
+        'view_helper' => array(
+            //overrides the on success 
+            'include_js_script'          => realpath(__DIR__ . '/../../GbiliUploadModule/view/partial') . '/image_picker_aware_media_upload.js.phtml', 
+            'display_form_as_popup'      => true,
+            'popup_initial_state_hidden' => true,
         ),
     ),
 );
