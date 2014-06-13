@@ -103,6 +103,11 @@ gbili.upm.fileUpload = (function() {
         fileInput: $('#<?= $fileInputName ?>'),
     });
 
+    // Listen to the form no file event 
+    gbili.event.addListener('#<?= $formId ?>.no_file_selected_abort?', function(event) { //startProgress
+        alert('<?= $messageNoFilesSelected?>');
+    }, 1);
+
     // Listen to the form submit start event and start polling the server for upload progress 
     gbili.event.addListener('#<?= $formId ?>.submit.start', function(event) { //startProgress
         gbili.poll.start({
