@@ -31,7 +31,8 @@ gbili.upm.progressBar = function() {
     var switchCssClass,
         resetProgressBar,
         showProgressCallback,
-        valueElement;
+        // Element holding the upload id in the server
+        uploadIdElement;
 
     switchCssClass = function (cssClass) {
         $('#gbiliuploader-progress .progress .progress-bar')
@@ -57,11 +58,11 @@ gbili.upm.progressBar = function() {
         switchCssClass: switchCssClass,
         reset: resetProgressBar,
         show: showProgressCallback,
-        getValue: function() {
-            if (!valueElement) {
-                valueElement = $('#progress_key');
+        getUploadId: function() {
+            if (!uploadIdElement) {
+                uploadIdElement = $('#progress_key');
             }
-            return valueElement.val();
+            return uploadIdElement.val();
         },
     };
 }();
@@ -134,7 +135,8 @@ gbili.upm.fileUpload = (function() {
         $('#<?= $fileInputName ?>').on('click', gbili.upm.progressBar.reset);
     };
 
-    gbili.event.addListener('#<?= $formId ?>.submit.success.after', onFileInputClickResetProgressBar, 100);
+    // Add event listener after popup has been changed
+    gbili.event.addListener('#<?= $formId ?>.submit.after', onFileInputClickResetProgressBar, 101);
 
     onFileInputClickResetProgressBar();
 })();

@@ -100,7 +100,7 @@ function gbiliUploaderAddImagesToMasonizeableWall(response) {
         gbili.event.addListener('#<?= $formId ?>.submit.success.response.valid.' + statusesWithImageInResponse[i], handleResponseWithImage, 2);
     }
     // Add event listener after popup has been changed
-    gbili.event.addListener('#<?= $formId ?>.submit.success.after', function (event) {
+    gbili.event.addListener('#<?= $formId ?>.submit.after', function (event) {
         gbili.upm.popup.initHideButton();
     }, 2);
 
