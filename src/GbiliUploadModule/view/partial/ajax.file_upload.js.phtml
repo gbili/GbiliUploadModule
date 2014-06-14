@@ -101,44 +101,51 @@ gbili.upm.fileUpload = (function() {
         formCssSelector: '#<?= $formId ?>',
     });
 
-    (function() {
-        var fileInputCssSelector = '#<?= $fileInputName ?>';
-        var fileInput;
-        var getFileInput = function(refresh) {
-            fileInput = (refresh && $(fileInputCssSelector)) || fileInput || $(fileInputCssSelector);
-            return fileInput;
-        };
+    //
+    // File input
+    //
+    var fileInputCssSelector = '#<?= $fileInputName ?>';
+    var fileInput;
+    var getFileInput = function(refresh) {
+        fileInput = (refresh && $(fileInputCssSelector)) || fileInput || $(fileInputCssSelector);
+        return fileInput;
+    };
 
-        //  93 // http://stackoverflow.com/a/1043969
-        var clearFileInput = function(event) {
-            fileInput = getFileInput().replaceWith(getFileInput().val('').clone( true ));
-        };
+    var onFileInputClickResetProgressBar = function() {
+        // Register a on click event on the file input button.
+        $('#<?= $fileInputName ?>').on('click', gbili.upm.progressBar.reset);
+    };
 
-        // Every time files are sent Clear the file input, otherwise the same file gets re-uploaded
-        gbili.event.addListener('#<?= $formId ?>.submit.after', clearFileInput, 100);
+    //  93 // http://stackoverflow.com/a/1043969
+    var clearFileInput = function(event) {
+        fileInput = getFileInput().replaceWith(getFileInput().val('').clone( true ));
+    };
 
-        // When ajax form askes about submitting, make sure there is a file
-        gbili.event.addListener('#<?= $formId ?>.submit?', function(event) { //startProgress
-            var refresh=true,
-                abort=true,
-                submit;
-            if (getFileInput(true).val() === '') {
-                var params = {
-                    target: getFileInput(), 
-                    params: {ajaxForm: event.target},
-                    defaultResponse: abort,
-                };
-                abort = gbili.event.trigger(fileInputCssSelector + '.no_file_selected_abort?', params, 100).pop();
-            }
-            submit = !abort;
-            return submit;
-        }, 1);
-        // Listen to empty file input 
-        gbili.event.addListener('#<?= $fileInputName ?>.no_file_selected_abort?', function(event) { //startProgress
-            alert('<?= $messageNoFilesSelected?>');
-            return true;
-        }, 1);
-    })();
+    // Every time files are sent Clear the file input, otherwise the same file gets re-uploaded
+    gbili.event.addListener('#<?= $formId ?>.submit.after', clearFileInput, 100);
+
+    // When ajax form askes about submitting, make sure there is a file
+    gbili.event.addListener('#<?= $formId ?>.submit?', function(event) { //startProgress
+        var refresh=true,
+            abort=false,
+            submit;
+        if (getFileInput(true).val() === '') {
+            abort=true;
+            var params = {
+                target: getFileInput(), 
+                params: {ajaxForm: event.target},
+                defaultResponse: abort,
+            };
+            abort = gbili.event.trigger(fileInputCssSelector + '.no_file_selected_abort?', params, 100).pop();
+        }
+        submit = !abort;
+        return submit;
+    }, 1);
+    // Listen to empty file input 
+    gbili.event.addListener('#<?= $fileInputName ?>.no_file_selected_abort?', function(event) { //startProgress
+        alert('<?= $messageNoFilesSelected?>');
+        return true;
+    }, 1);
 
     gbili.poll.config({
         baseUrl: '/upload_progress.php?id=', 
@@ -174,11 +181,6 @@ gbili.upm.fileUpload = (function() {
 
     // Parse the script and get the messages from 
     gbili.event.addListener('#<?= $formId ?>.submit.success.response.notValid', gbili.upm.messages.showScriptTagResponse);
-
-    var onFileInputClickResetProgressBar = function() {
-        // Register a on click event on the file input button.
-        $('#<?= $fileInputName ?>').on('click', gbili.upm.progressBar.reset);
-    };
 
     // Add event listener after popup has been changed
     gbili.event.addListener('#<?= $formId ?>.submit.after', onFileInputClickResetProgressBar, 101);
