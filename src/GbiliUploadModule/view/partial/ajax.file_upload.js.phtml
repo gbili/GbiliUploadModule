@@ -115,7 +115,7 @@ gbili.upm.fileUpload = (function() {
         };
 
         // Every time files are sent Clear the file input, otherwise the same file gets re-uploaded
-        gbili.event.addListener(formCssSelector + '.submit.after', clearFileInput, 100);
+        gbili.event.addListener('#<?= $formId ?>.submit.after', clearFileInput, 100);
 
         // When ajax form askes about submitting, make sure there is a file
         gbili.event.addListener('#<?= $formId ?>.submit?', function(event) { //startProgress
