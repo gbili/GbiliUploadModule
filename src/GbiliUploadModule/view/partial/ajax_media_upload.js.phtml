@@ -5,63 +5,13 @@
     ->addDependency('imagesloaded', 'jQuery') ?>
 <?php $view->scriptalicious()->addSrc('masonry', '/js/masonry.pkgd.min.js')
     ->addDependency('masonry', 'jQuery') ?>
+<?php $view->scriptalicious()->addSrc('gbili_popup', '/js/gbili/popup.js') ?>
 
 <?php ob_start() ?>
 <script type="text/javascript">
 /* Filename: <?= __FILE__ ?> */
 gbili = gbili || {};
 gbili.upm = gbili.upm || {};
-
-gbili.upm.popup = function() {
-    var popupUploadForm = $('#<?= $this->popupDivId ?>')[0],
-        hidePopupButton,
-        showPopupButton;
-
-    //gbili.upm.popup.show
-    var show = function() {
-         if (-1 !== typeof popupUploadForm.className.indexOf('hidden')) {
-             popupUploadForm.className = popupUploadForm.className.replace('hidden', '');
-         }
-    };
-
-    //gbiliUploaderHideUploadPopup
-    var hide = function() {
-        if (-1 === popupUploadForm.className.indexOf('hidden')) {
-            popupUploadForm.className = popupUploadForm.className += ' hidden'; 
-        }
-    };
-
-    //gbiliUploaderHideAndResetPopup
-    var reset = function() {
-        hide();
-        //remove alerts
-        $('#<?= $this->popupDivId ?> .alert').remove();
-        // Todo depends on progressBar
-        gbili.upm.progressBar.reset();
-    };
-
-    var initHideButton = function() {
-        hidePopupButton.on('click', reset); 
-    }; 
-    var initShowButton = function() {
-        showPopupButton.on('click', show); 
-    }; 
-
-    return {
-        show : show,
-        hide : hide,
-        reset : reset,
-        setHideButtonCssSelector : function(selector) {
-            hidePopupButton = $(selector);
-        },
-        initHideButton : initHideButton,
-        setShowButtonCssSelector : function(selector) {
-            showPopupButton = $(selector);
-        },
-        initShowButton : initShowButton
-    };
-}();
-
 /*
  * Reload Image picker with new image
  *
@@ -97,7 +47,7 @@ function gbiliUploaderAddImagesToMasonizeableWall(response) {
     // Add listeners for responses with images
     var statusesWithImageInResponse = ['success', 'partial'];
     for (var i in statusesWithImageInResponse) {
-        gbili.event.addListener('#<?= $formId ?>.submit.success.response.valid.' + statusesWithImageInResponse[i], handleResponseWithImage, 2);
+        gbili.event.addListener('#<?= $formId ?>.submit.success.response.valid.' + statusesWithImageInResponse[i], handleResponseWithImage, 100);
     }
     // Add event listener after popup has been changed
     gbili.event.addListener('#<?= $formId ?>.submit.after', function (event) {
@@ -112,10 +62,12 @@ function gbiliUploaderAddImagesToMasonizeableWall(response) {
         var buttonShowPopup = '<div class="gbiliuploader-show-popup-button"><a class="btn btn-primary">+</a></div>';
         var brickWall = $(".brick-wall > div").append(buttonShowPopup);
     }();
-    gbili.upm.popup.setHideButtonCssSelector('#<?= $this->popupDivId ?> > a.gbiliuploader-hide-popup-button');
-    gbili.upm.popup.setShowButtonCssSelector('div.gbiliuploader-show-popup-button a.btn');
-    gbili.upm.popup.initShowButton();
-    gbili.upm.popup.initHideButton();
+
+    gbili.popup.init({
+        containerCssSelector: '#<?= $this->popupDivId ?>',
+        hideButtonCssSelector: '#<?= $this->popupDivId ?> > a.gbiliuploader-hide-popup-button',
+        showButtonCssSelector: 'div.gbiliuploader-show-popup-button a.btn',
+    });
 })();
 
 </script>
@@ -124,6 +76,7 @@ function gbiliUploaderAddImagesToMasonizeableWall(response) {
 <?php $view->scriptalicious()->addInline('gbiliuploader_ajax_media_upload', $add_button_to_image_picker)
     ->addDependency('gbiliuploader_ajax_media_upload', 'masonry')
     ->addDependency('gbiliuploader_ajax_media_upload', 'imagesloaded')
-    ->addDependency('gbiliuploader_ajax_media_upload', 'gbiliuploader_ajax_file_upload')?>
+    ->addDependency('gbiliuploader_ajax_media_upload', 'gbiliuploader_ajax_file_upload')
+    ->addDependency('gbiliuploader_ajax_media_upload', 'gbili_popup')?>
 
 <?php unset($add_button_to_image_picker) ?>

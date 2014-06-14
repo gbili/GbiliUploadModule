@@ -7,6 +7,7 @@
     ->addDependency('image_picker', 'jQuery') ?>
 <?php $view->scriptalicious()->addSrc('masonry', '/js/masonry.pkgd.min.js')
     ->addDependency('masonry', 'jQuery') ?>
+<?php $view->scriptalicious()->addSrc('gbili_popup', '/js/gbili/popup.js') ?>
 
 <?php ob_start() ?>
 <script type="text/javascript">
@@ -14,139 +15,85 @@
 /*
  * When used alongside image_picker, gbiliuploader is presented as a popup
  */
-// Function that changes the popup hidden state
-function gbiliUploaderShowUploadPopup () {
-    var popupUploadForm = $('#<?= $this->popupDivId ?>')[0];
-    if (-1 !== typeof popupUploadForm.className.indexOf('hidden')) {
-        popupUploadForm.className = popupUploadForm.className.replace('hidden', '');
-    }
-}
+gbili = gbili || {};
+gbili.upm = gbili.upm || {};
+//Attach valid response event listeners
+(function () {
+    var gbiliUploaderInitImagePicker = function() {
+        $("select.image-picker").imagepicker();
+        var $container = $("select.image-picker.masonry").next('ul.thumbnails');
+        $container.imagesLoaded(function () {
+            $container.masonry({
+                itemSelector: 'li',
+            })
+        });
+    };
 
-// Function that changes the popup hidden state
-function gbiliUploaderHideUploadPopup () {
-    var popupUploadForm = $('#<?= $this->popupDivId ?>')[0];
-    if (-1 === popupUploadForm.className.indexOf('hidden')) {
-        popupUploadForm.className = popupUploadForm.className += ' hidden'; 
-    }
-}
+    var gbiliUploaderReloadImagePicker = function() {
+        var currentImagePicker = $("ul.thumbnails");
+        currentImagePicker.remove();
+        gbiliUploaderInitImagePicker();
+    };
 
-// Would be lazier if it were on the showPopup
-function gbiliUploaderHideAndResetPopup () {
-    gbiliUploaderHideUploadPopup();
-    //remove alerts
-    $('#<?= $this->popupDivId ?> .alert').remove();
-    gbiliUploaderResetProgress();
-}
-
-function gbiliUploaderInitImagePicker() {
-    $("select.image-picker").imagepicker();
-    var $container = $("select.image-picker.masonry").next('ul.thumbnails');
-    $container.imagesLoaded(function () {
-        $container.masonry({
-            itemSelector: 'li',
-        })
-    });
-}
-
-function gbiliUploaderReloadImagePicker() {
-    var currentImagePicker = $("ul.thumbnails");
-    currentImagePicker.remove();
-    gbiliUploaderInitImagePicker();
-}
-
-/*
- * Add a button to the below the image picker selector, 
- * that will trigger the popup form
- */
-function gbiliUploaderInitButtonAddMedia() {
     /*
-     * Create the button and add it to the selector with a show listener
+     * Reload Image picker with new image
+     *
+     * 1.Append the uploaded image to the image select
+     * 2.Reload image-picker on select so that the new image
+     * is available for select
      */
-    var buttonShowPopup = '<div class="gbiliuploader-show-popup-button"><a class="btn btn-primary">+</a></div>';
-    // TODO find a better unique css selector the element is ul class="thumbnails image-picker-selector"
-    // I dont know how to select the element ul that has both classes.
-    //var imagePickerWellContainer = $("select.image-picker").parent().parent();
-    //imagePickerWellContainer.html(imagePickerWellContainer.html() + buttonShowPopup);
-    var cunt = $('.gbili-add-media-button-container');
-    var butt = '<div class="gbiliuploader-show-popup-button"><a class="btn btn-primary">+</a></div>';
-    cunt.append(butt);
-
-    gbiliUploaderSetEventListenerClickAddMediaButton();
-};
-
-function gbiliUploaderSetEventListenerClickAddMediaButton() {
-    // Register an onclick event on the botton
-    var buttonAddMedia = $('div.gbiliuploader-show-popup-button a.btn')[0];
-    if (buttonAddMedia.addEventListener) {
-        buttonAddMedia.addEventListener('click', gbiliUploaderShowUploadPopup, false); 
-    } else if (buttonAddMedia.attachEvent)  {
-        buttonAddMedia.attachEvent('onclick', gbiliUploaderShowUploadPopup);
-    }
-}
-
-/*
- * Register listeners
- * Call this every time the content of the containing div is modified
- */
-function gbiliUploaderSetEventListenerClickHidePopupButton() {
-    var hidePopupButton = $('#<?= $this->popupDivId ?> > a.gbiliuploader-hide-popup-button')[0];
-    if (hidePopupButton.addEventListener) {
-        hidePopupButton.addEventListener('click', gbiliUploaderHideAndResetPopup, false); 
-    } else if (hidePopupButton.attachEvent)  {
-        hidePopupButton.attachEvent('onclick', gbiliUploaderHideAndResetPopup);
-    }
-}
-
-/*
- * Reload Image picker with new image
- *
- * 1.Append the uploaded image to the image select
- * 2.Reload image-picker on select so that the new image
- * is available for select
- */
-function gbiliUploaderAddImageToSelectForm(response) {
-    var options = '';
-    var callbackReturn = response.callbackReturn;
-    var lastItemKey = callbackReturn.length-1;
-    for( key in  callbackReturn) {
-        if (lastItemKey == key) {
-            options = options + '<option data-img-src="' + callbackReturn[key].mediaSrc + '" value="' + callbackReturn[key].mediaId + '" selected="selected">';
-        } else {
-            options = options + '<option data-img-src="' + callbackReturn[key].mediaSrc + '" value="' + callbackReturn[key].mediaId + '" >';
+    gbiliUploaderAddImageToSelectForm = function(response) {
+        var options = '';
+        var callbackReturn = response.callbackReturn;
+        var lastItemKey = callbackReturn.length-1;
+        for( key in  callbackReturn) {
+            if (lastItemKey == key) {
+                options = options + '<option data-img-src="' + callbackReturn[key].mediaSrc + '" value="' + callbackReturn[key].mediaId + '" selected="selected">';
+            } else {
+                options = options + '<option data-img-src="' + callbackReturn[key].mediaSrc + '" value="' + callbackReturn[key].mediaId + '" >';
+            }
         }
+        var selectElement = $('select.image-picker');
+        selectElement.html(selectElement.html() + options);
+    };
+
+    var handleResponseWithImage = function(event) {
+        gbiliUploaderAddImageToSelectForm(event.params.response);
+        gbiliUploaderReloadImagePicker();
+        event.isPropagationStopped = true;
+    };
+
+    // Add listeners for responses with images
+    var statusesWithImageInResponse = ['success', 'partial'];
+    for (var i in statusesWithImageInResponse) {
+        gbili.event.addListener('#<?= $formId ?>.submit.success.response.valid.' + statusesWithImageInResponse[i], handleResponseWithImage, 100);
     }
-    var selectElement = $('select.image-picker');
-    selectElement.html(selectElement.html() + options);
-}
+    // Add event listener after popup has been changed
+    gbili.event.addListener('#<?= $formId ?>.submit.after', function (event) {
+        gbili.popup.initButtonHide();
+    }, 2);
 
-var gbiliUploaderUploadSuccessCallback = function (response) {
-    gbiliUploaderUploadSuccess(response);
+    /*
+     * Add a button to the below the image picker selector, 
+     * that will trigger the popup form
+     */
+    var createShowPopupButton = function() {
+        var buttonShowPopup = '<div class="gbiliuploader-show-popup-button"><a class="btn btn-primary">+</a></div>';
+        var cunt = $('.gbili-add-media-button-container');
+        var butt = '<div class="gbiliuploader-show-popup-button"><a class="btn btn-primary">+</a></div>';
+        cunt.append(butt);
+    }();
 
-    gbiliUploaderAddImageToSelectForm(response);
-    gbiliUploaderReloadImagePicker();
+    gbili.popup.init({
+        containerCssSelector: '#<?= $this->popupDivId ?>',
+        buttonHideCssSelector: '#<?= $this->popupDivId ?> > a.gbiliuploader-hide-popup-button',
+        buttonShowCssSelector: 'div.gbiliuploader-show-popup-button a.btn',
+    });
+ 
+    //Important to load the image picker after the add media button
+    gbiliUploaderInitImagePicker();
+})();
 
-    gbiliUploaderSetEventListenerClickHidePopupButton();
-};
-
-var gbiliUploaderUploadFailCallback = function (response) {
-    gbiliUploaderUploadFail(response);
-
-    gbiliUploaderSetEventListenerClickHidePopupButton();
-};
-
-var gbiliUploaderUploadPartialSuccessCallback = function (response) {
-    gbiliUploaderUploadPartialSuccess(response);
-
-    gbiliUploaderAddImageToSelectForm(response);
-    gbiliUploaderReloadImagePicker();
-
-    gbiliUploaderSetEventListenerClickHidePopupButton();
-};
-
-gbiliUploaderInitButtonAddMedia();
-//Important to load the image picker after the add media button
-gbiliUploaderInitImagePicker();
-gbiliUploaderSetEventListenerClickHidePopupButton();
 </script>
 <?php $add_button_to_image_picker = ob_get_clean()?>
 
@@ -154,6 +101,7 @@ gbiliUploaderSetEventListenerClickHidePopupButton();
     ->addDependency('gbiliuploader_image_picker_aware_media_upload', 'masonry')
     ->addDependency('gbiliuploader_image_picker_aware_media_upload', 'image_picker')
     ->addDependency('gbiliuploader_image_picker_aware_media_upload', 'imagesloaded')
-    ->addDependency('gbiliuploader_image_picker_aware_media_upload', 'gbiliuploader_ajax_file_upload')?>
+    ->addDependency('gbiliuploader_image_picker_aware_media_upload', 'gbiliuploader_ajax_file_upload')
+    ->addDependency('gbiliuploader_image_picker_aware_media_upload', 'gbili_popup')?>
 
 <?php unset($add_button_to_image_picker) ?>
