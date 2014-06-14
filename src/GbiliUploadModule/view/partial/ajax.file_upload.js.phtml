@@ -100,7 +100,7 @@ gbili.upm.fileUpload = (function() {
     // Make the form Ajax capable
     gbili.ajaxForm.create({
         formCssSelector: '#<?= $formId ?>',
-        fileInput: $('#<?= $fileInputName ?>'),
+        fileInputCssSelector: '#<?= $fileInputName ?>',
     });
 
     // Listen to the form no file event 
