@@ -118,6 +118,7 @@ gbili.upm.fileUpload = (function() {
         gbili.poll.start();
     });
     gbili.event.addListener('#<?= $formId ?>.submit.after', function(event) {
+        gbili.upm.progressBar.show(100, 'Success');
         gbili.poll.stop();
     });
 
