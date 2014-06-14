@@ -108,12 +108,14 @@ gbili.upm.fileUpload = (function() {
         alert('<?= $messageNoFilesSelected?>');
     }, 1);
 
+    gbili.poll.config({
+        baseUrl: '/upload_progress.php?id=', 
+        progressBar: gbili.upm.progressBar, 
+    });
+
     // Listen to the form submit start event and start polling the server for upload progress 
     gbili.event.addListener('#<?= $formId ?>.submit.start', function(event) { //startProgress
-        gbili.poll.start({
-            baseUrl: '/upload_progress.php?id=', 
-            progressBar: gbili.upm.progressBar, 
-        });
+        gbili.poll.start();
     });
     gbili.event.addListener('#<?= $formId ?>.submit.after', function(event) {
         gbili.poll.stop();
