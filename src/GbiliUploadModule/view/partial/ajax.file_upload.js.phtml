@@ -35,11 +35,10 @@ gbili.upm.progressBar = function() {
         uploadIdElement;
 
     switchCssClass = function (cssClass) {
-        $('#gbiliuploader-progress .progress .progress-bar')
-            .removeClass('progress-bar-primary')
-            .removeClass('progress-bar-warning')
-            .removeClass('progress-bar-danger')
-            .addClass('progress-bar-' + cssClass );
+        var el = $('#gbiliuploader-progress .progress .progress-bar');
+        var elCssClass = el.attr('class');
+        var replacedCssClass = elCssClass.replace(/progress-bar-[a-z]+/, 'progress-bar-' + cssClass);
+            el.attr('class', replacedCssClass);
     };
 
     resetProgressBar = function() {
@@ -100,26 +99,61 @@ gbili.upm.fileUpload = (function() {
     // Make the form Ajax capable
     gbili.ajaxForm.create({
         formCssSelector: '#<?= $formId ?>',
-        fileInputCssSelector: '#<?= $fileInputName ?>',
     });
 
-    // Listen to the form no file event 
-    gbili.event.addListener('#<?= $formId ?>.no_file_selected_abort?', function(event) { //startProgress
-        alert('<?= $messageNoFilesSelected?>');
-    }, 1);
+    (function() {
+        var fileInputCssSelector = '#<?= $fileInputName ?>';
+        var fileInput;
+        var getFileInput = function(refresh) {
+            fileInput = (refresh && $(fileInputCssSelector)) || fileInput || $(fileInputCssSelector);
+            return fileInput;
+        };
+
+        //  93 // http://stackoverflow.com/a/1043969
+        var clearFileInput = function(event) {
+            fileInput = getFileInput().replaceWith(getFileInput().val('').clone( true ));
+        };
+
+        // Every time files are sent Clear the file input, otherwise the same file gets re-uploaded
+        gbili.event.addListener(formCssSelector + '.submit.after', clearFileInput, 100);
+
+        // When ajax form askes about submitting, make sure there is a file
+        gbili.event.addListener('#<?= $formId ?>.submit?', function(event) { //startProgress
+            var refresh=true,
+                abort=true,
+                submit;
+            if (getFileInput(true).val() === '') {
+                var params = {
+                    target: getFileInput(), 
+                    params: {ajaxForm: event.target},
+                    defaultResponse: abort,
+                };
+                abort = gbili.event.trigger(fileInputCssSelector + '.no_file_selected_abort?', params, 100).pop();
+            }
+            submit = !abort;
+            return submit;
+        }, 1);
+        // Listen to empty file input 
+        gbili.event.addListener('#<?= $fileInputName ?>.no_file_selected_abort?', function(event) { //startProgress
+            alert('<?= $messageNoFilesSelected?>');
+            return true;
+        }, 1);
+    })();
 
     gbili.poll.config({
         baseUrl: '/upload_progress.php?id=', 
         progressBar: gbili.upm.progressBar, 
+        messages: {inProgress: '<?= $messageUploading ?>', complete: '<?= $messageUploadComplete ?>'},
+        ms: 100,
     });
 
     // Listen to the form submit start event and start polling the server for upload progress 
     gbili.event.addListener('#<?= $formId ?>.submit.start', function(event) { //startProgress
         gbili.poll.start();
     });
+    // if upload completes before polling, stop polling 
     gbili.event.addListener('#<?= $formId ?>.submit.after', function(event) {
-        gbili.upm.progressBar.show(100, 'Success');
-        gbili.poll.stop();
+        gbili.poll.manualComplete();
     });
 
     //Attach valid response event listeners
@@ -141,7 +175,7 @@ gbili.upm.fileUpload = (function() {
     // Parse the script and get the messages from 
     gbili.event.addListener('#<?= $formId ?>.submit.success.response.notValid', gbili.upm.messages.showScriptTagResponse);
 
-    onFileInputClickResetProgressBar = function() {
+    var onFileInputClickResetProgressBar = function() {
         // Register a on click event on the file input button.
         $('#<?= $fileInputName ?>').on('click', gbili.upm.progressBar.reset);
     };
