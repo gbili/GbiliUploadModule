@@ -7,12 +7,21 @@ use Zend\Form\Element;
 class Html5MultiUpload extends \Zend\Form\Form
 {
     protected $fileInputName;
+    protected $uploadDirpath;
+    protected $renameUploadTarget;
 
     public function __construct($name = null, $options = array())
     {
         parent::__construct($name, $options);
 
         $this->fileInputName = ((isset($options['file_input_name']))? $options['file_input_name'] : 'file');
+
+        if (isset($options['rename_upload_target'])) {
+            $this->renameUploadTarget = $options['rename_upload_target'];
+        } else if (!isset($options['file_upload_dirpath'])) {
+            throw new \Exception('either pass rename_upload_target or file_upload_dirpath as options param array key');
+        }
+        $this->uploadDirpath = $options['file_upload_dirpath'];
 
         $this->addElements();
         $this->setInputFilter($this->createInputFilter());
@@ -56,7 +65,7 @@ class Html5MultiUpload extends \Zend\Form\Form
         $file->getFilterChain()->attachByName(
             'filerenameupload',
             array(
-                'target'    => '/Users/g/Documents/workspace/dog/public/img/media.jpg',
+                'target'    => ((null !== $this->renameUploadTarget)? $this->renameUploadTarget : $this->uploadDirpath . '/media.jpg'),
                 'randomize' => true,
             )
         );

@@ -21,6 +21,15 @@ class Uploader
     protected $includeScriptFilePath;
 
     /**
+     * The directory to which rename upload form plugin
+     * should upload the files
+     * Passed as parameter to Html5MultiuploadForm
+     *
+     * @var string
+     */
+    protected $uploadDirpath;
+
+    /**
      * @var array
      */
     protected $formActionRouteParams = array('route' => null, 'params' => array(), 'reuse_matched_params' => true);
@@ -160,6 +169,7 @@ class Uploader
         if (!$this->hasFormId()) {
             $this->setFormId('gbiliuploader_upload_form');
         }
+        $options['file_upload_dirpath'] = $this->getUploadDirpath();
 
         $form = new \GbiliUploadModule\Form\Html5MultiUpload($this->getFormName(), $options);
         $form->setAttribute('id', $this->getFormId());
@@ -168,6 +178,20 @@ class Uploader
         $this->setForm($form);
 
         return $form;
+    }
+
+    public function getUploadDirpath()
+    {
+        if (null === $this->uploadDirpath) {
+            throw new \Exception('uploadDirpath is required');
+        }
+        return $this->uploadDirpath;
+    }
+
+    public function setUploadDirpath($dirpath)
+    {
+        $this->uploadDirpath = $dirpath;
+        return $this;
     }
 
     public function setFormActionRouteParams(array $routeParams)

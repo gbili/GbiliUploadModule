@@ -103,6 +103,8 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
         $service->setFileHydrator($this->getServiceFileHydrator());
         $service->setFormName($this->getConfigValue('service', 'form_name', 'file_form'));
         $service->setFileInputName($this->getConfigValue('service', 'file_input_name', 'file_input'));
+
+        $service->setUploadDirpath($this->getConfigValue('service', 'file_upload_dirpath', null));
     }
 
     protected function getScriptPath($scriptBasename)
