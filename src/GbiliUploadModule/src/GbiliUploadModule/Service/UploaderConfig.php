@@ -185,6 +185,8 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
             $value = $config[$for][$key];
         } else if ($allowAlias && isset($this->aliasedConfig[$for][$key])) {
             $value = $this->aliasedConfig[$for][$key];
+        } else if (isset($this->config[$for][$key])) { // Global config
+            $value = $this->config[$for][$key];
         } else {
             $value = $default;
         }
