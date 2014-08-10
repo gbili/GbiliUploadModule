@@ -13,8 +13,8 @@
                              ->addDependency('gbili_ajaxform', 'gbili_event') ?>
 <?php $view->scriptalicious()->addSrc('gbili_poll', '/js/gbili/poll.js') ?>
 
-<?php $fileInputName          = $this->getService()->getFileInputName() ?>
-<?php $formId                 = $this->getService()->getFormId() ?>
+<?php $fileInputName          = $this->getService()->getForm()->getFileInputName() ?>
+<?php $formId                 = $this->getService()->getForm()->getAttribute('id') ?>
 <?php $messageUploadComplete  = $view->translate('Complete!') ?>
 <?php $messageUploading       = $view->translate('Uploading...') ?>
 <?php $messageReset           = $view->translate('Click the "Upload" button when you are ready.') ?>
