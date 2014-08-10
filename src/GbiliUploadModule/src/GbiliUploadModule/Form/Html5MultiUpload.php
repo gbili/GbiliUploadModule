@@ -1,48 +1,28 @@
 <?php
 namespace GbiliUploadModule\Form;
 
-use Zend\InputFilter;
-use Zend\Form\Element;
-
 class Html5MultiUpload extends \Zend\Form\Form
 {
-    protected $fileInputName;
-    protected $uploadDirpath;
-    protected $renameUploadTarget;
-
     public function __construct($name = null, $options = array())
     {
         parent::__construct($name, $options);
-
-        $this->fileInputName = ((isset($options['file_input_name']))? $options['file_input_name'] : 'file');
-
-        if (isset($options['rename_upload_target'])) {
-            $this->renameUploadTarget = $options['rename_upload_target'];
-        } else if (!isset($options['file_upload_dirpath'])) {
-            throw new \Exception('either pass rename_upload_target or file_upload_dirpath as options param array key');
-        }
-        $this->uploadDirpath = $options['file_upload_dirpath'];
-
         $this->addElements();
         $this->setInputFilter($this->createInputFilter());
     }
 
     public function addElements()
     {
+        $fileInputName = $this->getFileInputName();
+
         //File Input
-        $file = new Element\File($this->fileInputName);
+        $file = new \Zend\Form\Element\File($fileInputName);
         $file->setLabel('Select')
             ->setAttributes(array(
                 'multiple' => true,
-                'id' => $this->fileInputName, 
+                'id' => $fileInputName, 
             )
         );
         $this->add($file);
-        
-        /* Enable this if you would like to have a Text Input sent along your files
-        $text = new Element\Text('text');
-        $text->setLabel('Text Entry');
-        $this->add($text);*/
         
         // Submit
         $this->add(array(
@@ -56,41 +36,76 @@ class Html5MultiUpload extends \Zend\Form\Form
         ));
     }
 
+    /**
+     * The neame of the file input id
+     */
+    protected function getFileInputName()
+    {
+        $options = $this->getOptions();
+        return ((isset($options['file_input_name']))
+            ? $options['file_input_name']
+            : 'file');
+    }
+
+    /**
+     * Used by filter
+     * @throws exception
+     * @return string directory where files should be moved to
+     */
+    protected function getTarget()
+    {
+        $options = $this->getOptions();
+        $target = null;
+        if (isset($options['rename_upload_target'])) {
+            $target = $options['rename_upload_target'];
+        } else if (isset($options['file_upload_dirpath'])) {
+            $target = $options['file_upload_dirpath'] . '/media.jpg'
+        } else {
+            throw new \Exception('Missing target');
+        }
+        return $target;
+    }
+
+    /**
+     * Filter identifier in the filter manager
+     * @return string filter name 
+     */
+    protected function getFileInputFilterName() 
+    {
+        $options = $this->getOptions();
+        return ((isset($options['file_input_filter_name']))
+            ? $options['file_input_filter_name']
+            : 'filerenameupload');
+    }
+
     public function createInputFilter()
     {
-        $inputFilter = new InputFilter\InputFilter();
+        $options       = $this->getOptions();
+        $target        = $this->getTarget();
+        $fileInputFilterName    = $this->getFileInputFilterName();
+        $fileInputName = $this->getFileInputName();
+
+        $basicFilterOptions = array(
+            'target'    => $target,
+            'randomize' => true,
+        );
+
+        $filterOptions = (isset($options['file_input_filter_options']))
+            ? array_merge($basicFilterOptions, $options['file_input_filter_options'])
+            : $basicFilterOptions;
+
         // File Input
-        $file = new InputFilter\FileInput($this->fileInputName);
+        $file = new \Zend\InputFilter\FileInput($fileInputName);
         $file->setRequired(true);
-        $file->getFilterChain()->attachByName(
-            'filerenameupload',
-            array(
-                'target'    => ((null !== $this->renameUploadTarget)? $this->renameUploadTarget : $this->uploadDirpath . '/media.jpg'),
-                'randomize' => true,
-            )
-        );
-
-        $file->getValidatorChain()->addByName(
-            'fileextension', array('extension' => 'jpg')
-        );
-
+        $file->getFilterChain()->attachByName($fileInputFilterName, $filterOptions);
+        $file->getValidatorChain()->addByName('fileextension', array('extension' => 'jpg'));
+        $file->getValidatorChain()->addByName('filemimetype',  array('mimeType'  => 'image/jpg,image/jpeg',));
         /*$file->getValidatorChain()->addByName(
             'filesize', array('min' => 200, 'max' => 204800)
         );*/
 
-        $file->getValidatorChain()->addByName(
-            'filemimetype',
-            array(
-                'mimeType' => 'image/jpg,image/jpeg'
-            )
-        );
-
+        $inputFilter = new \Zend\InputFilter\InputFilter();
         $inputFilter->add($file);
-        
-        /* Text Input enable this if the field is enabled
-        $text = new InputFilter\Input('text');
-        $text->setRequired(true);
-        $inputFilter->add($text);*/
         return $inputFilter;
     }
 }

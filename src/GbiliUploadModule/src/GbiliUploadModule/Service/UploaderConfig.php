@@ -95,16 +95,32 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
         } else if ($jsScriptPath = $this->getConfigValue('view_helper', 'include_js_script', false, $allowAlias=true)) {
             $service->setIncludeScriptFilePath($jsScriptPath);
         }
-        //TODO move this config to the view helper
         $service->displayFormAsPopup($this->getConfigValue('view_helper', 'display_form_as_popup', false));
-        //TODO move this to viewHelper config
         $service->setFormInitialStateHidden($this->getConfigValue('view_helper', 'popup_initial_state_hidden', true));
         
         $service->setFileHydrator($this->getServiceFileHydrator());
-        $service->setFormName($this->getConfigValue('service', 'form_name', 'file_form'));
-        $service->setFileInputName($this->getConfigValue('service', 'file_input_name', 'file_input'));
 
-        $service->setUploadDirpath($this->getConfigValue('service', 'file_upload_dirpath', null));
+        $service->setForm($this->createForm());
+        return $service;
+    }
+
+    /**
+     * Create the form with the righ config
+     */
+    protected function createForm()
+    {
+        $options = array(
+            'file_input_name' => $this->getConfigValue('form', 'file_input_name', 'file_input'), 
+            'file_upload_dirpath' => $this->getConfigValue('form', 'file_upload_dirpath', null),
+            'rename_upload_target' => $this->getConfigValue('form', 'rename_upload_target', null),
+            'file_input_filter_name' => $this->getConfigValue('form', 'file_input_filter_name', 'filerenameupload'), 
+            'file_input_filter_options' => $this->getConfigValue('form', 'file_input_filter_options', array()), 
+        );
+        $formName = $this->getConfigValue('form', 'form_name', 'file_form');
+        $formId = $this->getConfigValue('form', 'form_id', 'gbiliuploader_upload_form');
+        $form = new \GbiliUploadModule\Form\Html5MultiUpload($formName, $options);
+        $form->setAttribute('id', $formId);
+        return $form;
     }
 
     protected function getScriptPath($scriptBasename)

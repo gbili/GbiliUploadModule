@@ -21,15 +21,6 @@ class Uploader
     protected $includeScriptFilePath;
 
     /**
-     * The directory to which rename upload form plugin
-     * should upload the files
-     * Passed as parameter to Html5MultiuploadForm
-     *
-     * @var string
-     */
-    protected $uploadDirpath;
-
-    /**
      * @var array
      */
     protected $formActionRouteParams = array('route' => null, 'params' => array(), 'reuse_matched_params' => true);
@@ -64,21 +55,6 @@ class Uploader
      * @var StdObject array
      */
     protected $postData;
-
-    /**
-     * @var string
-     */
-    protected $fileInputName;
-
-    /**
-     * @var string
-     */
-    protected $formName;
-
-    /**
-     * @var string
-     */
-    protected $formId;
 
     /**
      * @var array
@@ -147,51 +123,16 @@ class Uploader
             throw new \Exception('Form type not supported, must extend Html5MultiUpload');
         }
         $this->form = $form;
+        $this->clonableForm = clone $form;
         return $this;
     }
 
     public function getForm()
     {
-        if (null !== $this->form) {
-            return $this->form;
+        if (null === $this->form) {
+            throw new \Exception('No form has been set');
         }
-
-        $options = array();
-        if (!$this->hasFileInputName()) {
-            $this->setFileInputName('file_input');
-        }
-        $options['file_input_name'] = $this->getFileInputName();
-
-        if (!$this->hasFormName()) {
-            $this->setFormName('file_form');
-        }
-
-        if (!$this->hasFormId()) {
-            $this->setFormId('gbiliuploader_upload_form');
-        }
-        $options['file_upload_dirpath'] = $this->getUploadDirpath();
-
-        $form = new \GbiliUploadModule\Form\Html5MultiUpload($this->getFormName(), $options);
-        $form->setAttribute('id', $this->getFormId());
-
-        $this->clonableForm = clone $form;
-        $this->setForm($form);
-
-        return $form;
-    }
-
-    public function getUploadDirpath()
-    {
-        if (null === $this->uploadDirpath) {
-            throw new \Exception('uploadDirpath is required');
-        }
-        return $this->uploadDirpath;
-    }
-
-    public function setUploadDirpath($dirpath)
-    {
-        $this->uploadDirpath = $dirpath;
-        return $this;
+        return $this->form;
     }
 
     public function setFormActionRouteParams(array $routeParams)
@@ -235,38 +176,6 @@ class Uploader
         return $this;
     }
 
-    public function setFormName($name)
-    {
-        $this->formName = $name;
-        return $this;
-    }
-
-    public function hasFormName()
-    {
-        return null !== $this->formName;
-    }
-
-    public function getFormName()
-    {
-        return $this->formName;
-    }
-
-    public function setFormId($id)
-    {
-        $this->formId = $id;
-        return $this;
-    }
-
-    public function hasFormId()
-    {
-        return null !== $this->formId;
-    }
-
-    public function getFormId()
-    {
-        return $this->formId;
-    }
-
     public function setEntityManager(\Doctrine\ORM\EntityManager $em)
     {
         $this->objectManager = $em;
@@ -298,25 +207,6 @@ class Uploader
             throw new \Exception('It seems that you have not called uploadFiles');
         }
         return $this->messages;
-    }
-
-    public function setFileInputName($name)
-    {
-        $this->fileInputName = $name;
-        return $this;
-    }
-
-    public function hasFileInputName()
-    {
-        return null !== $this->fileInputName;
-    }
-
-    public function getFileInputName()
-    {
-        if (!$this->hasFileInputName()) {
-            throw new \Exception('File input name not set');
-        }
-        return $this->fileInputName;
     }
 
     public function setRequest($request)
@@ -401,8 +291,8 @@ class Uploader
 
     public function uploadFiles()
     {
-        $formName      = $this->getFormName();
-        $fileInputName = $this->getFileInputName();
+        $formName      = $this->getForm()->getName();
+        $fileInputName = $this->getForm()->getFileInputName();
         $data          = $this->getPostData();
 
         $messages      = array();
@@ -440,7 +330,7 @@ class Uploader
         $form->setData($singleFileFormData);
         if (!$form->isValid()) {
             $messages = $form->getMessages();
-            $message = implode('. ', $messages[$this->getFileInputName()]);
+            $message = implode('. ', $messages[$form->getFileInputName()]);
             return array(
                 'class' => 'danger',
                 'message' => $message,
@@ -461,7 +351,7 @@ class Uploader
         //    tmp_upload=>'/something/asdfasdf/LKGO'
         //    ...
         // );
-        $fileData = $formData[$this->getFileInputName()];
+        $fileData = $formData[$form->getFileInputName()];
         $this->saveFile($fileData);
         return array(
             'class' => 'success', 
