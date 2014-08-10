@@ -59,7 +59,7 @@ class Html5MultiUpload extends \Zend\Form\Form
         if (isset($options['rename_upload_target'])) {
             $target = $options['rename_upload_target'];
         } else if (isset($options['file_upload_dirpath'])) {
-            $target = $options['file_upload_dirpath'] . '/media.jpg'
+            $target = $options['file_upload_dirpath'] . '/media.jpg';
         } else {
             throw new \Exception('Missing target');
         }
