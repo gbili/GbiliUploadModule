@@ -39,7 +39,7 @@ class Html5MultiUpload extends \Zend\Form\Form
     /**
      * The neame of the file input id
      */
-    protected function getFileInputName()
+    public function getFileInputName()
     {
         $options = $this->getOptions();
         return ((isset($options['file_input_name']))
@@ -52,7 +52,7 @@ class Html5MultiUpload extends \Zend\Form\Form
      * @throws exception
      * @return string directory where files should be moved to
      */
-    protected function getTarget()
+    public function getTarget()
     {
         $options = $this->getOptions();
         $target = null;
@@ -70,7 +70,7 @@ class Html5MultiUpload extends \Zend\Form\Form
      * Filter identifier in the filter manager
      * @return string filter name 
      */
-    protected function getFileInputFilterName() 
+    public function getFileInputFilterName() 
     {
         $options = $this->getOptions();
         return ((isset($options['file_input_filter_name']))
