@@ -42,7 +42,7 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
         } else if ($jsScriptPath = $this->config->getConfigValue(['view_helper', 'include_js_script'], false, $allowAlias=true)) {
             $service->setIncludeScriptFilePath($jsScriptPath);
         }
-        $service->displayFormAsPopup($this->config->getConfigValue(['view_helper', 'display_form_as_popup', false));
+        $service->displayFormAsPopup($this->config->getConfigValue(['view_helper', 'display_form_as_popup'], false));
         $service->setFormInitialStateHidden($this->config->getConfigValue(['view_helper', 'popup_initial_state_hidden'], true));
         
         $service->setFileHydrator($this->getServiceFileHydrator());
