@@ -109,12 +109,17 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
      */
     protected function createForm()
     {
+        $filterOptions = $this->getConfigValue('form', 'file_input_filter_options', array());
+        $uploadTarget = $this->getConfigValue('form', 'file_upload_dirpath', null);
+        if (null !== $uploadTarget) {
+            $filterOptions['target'] = $uploadTarget . '/media.jpg';
+        }
         $options = array(
+            'file_input_filter' => array(
+                'name' => $this->getConfigValue('form', 'file_input_filter_name', 'filerenameupload'),
+                'options' => $filterOptions,
+            ),
             'file_input_name' => $this->getConfigValue('form', 'file_input_name', 'file_input'), 
-            'file_upload_dirpath' => $this->getConfigValue('form', 'file_upload_dirpath', null),
-            'rename_upload_target' => $this->getConfigValue('form', 'rename_upload_target', null),
-            'file_input_filter_name' => $this->getConfigValue('form', 'file_input_filter_name', 'filerenameupload'), 
-            'file_input_filter_options' => $this->getConfigValue('form', 'file_input_filter_options', array()), 
         );
         $formName = $this->getConfigValue('form', 'form_name', 'file_form');
         $formId = $this->getConfigValue('form', 'form_id', 'gbiliuploader_upload_form');

@@ -47,52 +47,11 @@ class Html5MultiUpload extends \Zend\Form\Form
             : 'file');
     }
 
-    /**
-     * Used by filter
-     * @throws exception
-     * @return string directory where files should be moved to
-     */
-    public function getTarget()
-    {
-        $options = $this->getOptions();
-        $target = null;
-        if (isset($options['rename_upload_target'])) {
-            $target = $options['rename_upload_target'];
-        } else if (isset($options['file_upload_dirpath'])) {
-            $target = $options['file_upload_dirpath'] . '/media.jpg';
-        } else {
-            throw new \Exception('Missing target');
-        }
-        return $target;
-    }
-
-    /**
-     * Filter identifier in the filter manager
-     * @return string filter name 
-     */
-    public function getFileInputFilterName() 
-    {
-        $options = $this->getOptions();
-        return ((isset($options['file_input_filter_name']))
-            ? $options['file_input_filter_name']
-            : 'filerenameupload');
-    }
-
     public function createInputFilter()
     {
-        $options       = $this->getOptions();
-        $target        = $this->getTarget();
-        $fileInputFilterName    = $this->getFileInputFilterName();
+        $options = $this->getOptions();
+        $filterConfig = $options['file_input_filter'];
         $fileInputName = $this->getFileInputName();
-
-        $basicFilterOptions = array(
-            'target'    => $target,
-            'randomize' => true,
-        );
-
-        $filterOptions = (isset($options['file_input_filter_options']))
-            ? array_merge($basicFilterOptions, $options['file_input_filter_options'])
-            : $basicFilterOptions;
 
         // File Input
         $file = new \Zend\InputFilter\FileInput($fileInputName);
@@ -100,13 +59,9 @@ class Html5MultiUpload extends \Zend\Form\Form
 
         $filterChain = $file->getFilterChain();
 
-        var_dump($filterOptions);
-
-        $filter = $filterChain->getPluginManager()->get($fileInputFilterName, array());
-        $validOptionKeys = $filter->getOptions();
-        $filterOptions = array_intersect_key($filterOptions, $validOptionKeys);
-        var_dump($filterOptions);
-        $filter->setOptions($filterOptions);
+        $filter = $filterChain->getPluginManager()->get($filterConfig['name'], $filterConfig['options']['target']);
+        $allowedFilterOptions = array_intersect_key($filterConfig['options'], $filter->getOptions());
+        $filter->setOptions($allowedFilterOptions);
 
         $filterChain->attach($filter);
 
