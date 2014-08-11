@@ -97,7 +97,19 @@ class Html5MultiUpload extends \Zend\Form\Form
         // File Input
         $file = new \Zend\InputFilter\FileInput($fileInputName);
         $file->setRequired(true);
-        $file->getFilterChain()->attachByName($fileInputFilterName, $filterOptions);
+
+        $filterChain = $file->getFilterChain();
+
+        var_dump($filterOptions);
+
+        $filter = $filterChain->getPluginManager()->get($fileInputFilterName, array());
+        $validOptionKeys = $filter->getOptions();
+        $filterOptions = array_intersect_key($filterOptions, $validOptionKeys);
+        var_dump($filterOptions);
+        $filter->setOptions($filterOptions);
+
+        $filterChain->attach($filter);
+
         $file->getValidatorChain()->addByName('fileextension', array('extension' => 'jpg'));
         $file->getValidatorChain()->addByName('filemimetype',  array('mimeType'  => 'image/jpg,image/jpeg',));
         /*$file->getValidatorChain()->addByName(
