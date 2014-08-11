@@ -111,9 +111,10 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
     {
         $filterOptions = $this->getConfigValue('form', 'file_input_filter_options', array());
         $uploadTarget = $this->getConfigValue('form', 'file_upload_dirpath', null);
-        if (null !== $uploadTarget) {
+        if (is_string($uploadTarget)) {
             $filterOptions['target'] = $uploadTarget . '/media.jpg';
         }
+
         $options = array(
             'file_input_filter' => array(
                 'name' => $this->getConfigValue('form', 'file_input_filter_name', 'filerenameupload'),
@@ -121,10 +122,18 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
             ),
             'file_input_name' => $this->getConfigValue('form', 'file_input_name', 'file_input'), 
         );
-        $formName = $this->getConfigValue('form', 'form_name', 'file_form');
-        $formId = $this->getConfigValue('form', 'form_id', 'gbiliuploader_upload_form');
-        $form = new \GbiliUploadModule\Form\Html5MultiUpload($formName, $options);
-        $form->setAttribute('id', $formId);
+
+        // Pass the S3 client to s3rename upload filter
+        if ('s3renameupload' === $options['file_input_filter']['name']) {
+            $options['file_input_filter']['options']['client'] = $this->getServiceLocator()->get('Aws')->get('S3');
+        }
+
+        $inputFilterFactory = new \GbiliUploadModule\Form\InputFilter\FileInputFilterFactory;
+        $inputFilter = $inputFilterFactory->createInputFilter($options);
+
+        $form = new \GbiliUploadModule\Form\Html5MultiUpload($this->getConfigValue('form', 'form_name', 'file_form'), $options);
+        $form->setAttribute('id', $this->getConfigValue('form', 'form_id', 'gbiliuploader_upload_form'));
+        $form->setInputFilter($inputFilter);
         return $form;
     }
 
