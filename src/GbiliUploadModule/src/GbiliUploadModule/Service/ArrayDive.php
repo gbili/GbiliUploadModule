@@ -42,7 +42,7 @@ class ArrayDive
         return $this->hasPath;
     }
 
-    public function has(array $target, array $keys)
+    public function has(array $target, $keys)
     {
         $this->dive($target, $keys);
         return $this->hasPath;
