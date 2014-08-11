@@ -62,7 +62,10 @@ class ContextConfig
     {
         $diver = new ArrayDive();
         if (!$diver->has($this->fullConfig, $keys)) {
-            throw new \Exception('Offset does not exist. $this->config["' . implode('"]["', $keys). '"]');
+            if (is_array($keys)) {
+                $keys = implode('"]["', $keys);
+            }
+            throw new \Exception('Offset does not exist. $this->config["' . $keys . '"]. ' . print_r($this->fullConfig, true));
         }
         $this->config = $diver->got();
         return $this;

@@ -25,7 +25,7 @@ class ArrayDive
         if (is_string($keys) || is_int($keys)) {
             $keys = array($keys);
         }
-        $this->has = true;
+        $this->hasPath = true;
         foreach ($keys as $key) {
             if (!isset($target[$key])) {
                 $this->hasPath = false;
