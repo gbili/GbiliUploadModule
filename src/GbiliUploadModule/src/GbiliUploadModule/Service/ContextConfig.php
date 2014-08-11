@@ -1,7 +1,7 @@
 <?php
 namespace GbiliUploadModule\Service;
 
-class ContextConfig implements UploaderServiceConfigInterface, UploaderControllerPluginConfigInterface
+class ContextConfig
 {
     const DEFAULT_CONFIG_KEY              = 'default';
 
