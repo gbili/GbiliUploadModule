@@ -44,7 +44,7 @@ class ArrayDive
 
     public function has(array $target, $keys)
     {
-        $this->dive($target, $keys);
+        $this->get($target, $keys);
         return $this->hasPath;
     }
 
