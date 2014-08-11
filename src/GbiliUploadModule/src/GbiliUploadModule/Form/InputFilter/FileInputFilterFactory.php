@@ -37,7 +37,7 @@ class FileInputFilterFactory
     {
         $filter = $config['file_input_filter'];
         if (is_array($filter)) {
-            $filter = $pluginManager->get($filter['name'], $filter['options'])
+            $filter = $pluginManager->get($filter['name'], $filter['options']);
         }
         if (!($filter instanceof \Zend\Filter\FilterInterface)) {
             throw new \Exception('Filter must implement \Zend\Filter\FilterInterface');
