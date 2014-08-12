@@ -11,7 +11,6 @@
 <script type="text/javascript">
 /* Filename: <?= __FILE__ ?> */
 gbili = gbili || {};
-gbili.upm = gbili.upm || {};
 /*
  * Reload Image picker with new image
  *
@@ -51,7 +50,7 @@ function gbiliUploaderAddImagesToMasonizeableWall(response) {
     }
     // Add event listener after popup has been changed
     gbili.event.addListener('#<?= $formId ?>.submit.after', function (event) {
-        gbili.upm.popup.initHideButton();
+        gbili.popup.initHideButton();
     }, 2);
 
     /*
@@ -67,8 +66,8 @@ function gbiliUploaderAddImagesToMasonizeableWall(response) {
 
     gbili.popup.init({
         containerCssSelector: '#<?= $this->popupDivId ?>',
-        hideButtonCssSelector: '#<?= $this->popupDivId ?> > a.gbiliuploader-hide-popup-button',
-        showButtonCssSelector: 'div.gbiliuploader-show-popup-button a.btn',
+        buttonHideCssSelector: '#<?= $this->popupDivId ?> > a.gbiliuploader-hide-popup-button',
+        buttonShowCssSelector: 'div.gbiliuploader-show-popup-button a.btn',
     });
 })();
 
