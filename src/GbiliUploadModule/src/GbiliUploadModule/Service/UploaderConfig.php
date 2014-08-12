@@ -10,7 +10,7 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
      */
     protected $config;
 
-    public function __construct(ContextConfig $config)
+    public function __construct(LazyContextConfig $config)
     {
         $this->config = $config;
     }

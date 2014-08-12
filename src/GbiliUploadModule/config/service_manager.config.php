@@ -9,9 +9,11 @@ return array(
             return $service;
         },
         __NAMESPACE__ . '\Service\ContextConfig' => __NAMESPACE__ . '\Service\ContextConfigFactory',
+        __NAMESPACE__ . '\Service\LazyContextConfig' => __NAMESPACE__ . '\Service\LazyContextConfigFactory',
     ),
     'aliases' => array(
         'uploader_service' => __NAMESPACE__ . '\Service\Uploader',
         'contextConfig' => __NAMESPACE__ . '\Service\ContextConfig',
+        'lazyContextConfig' => __NAMESPACE__ . '\Service\LazyContextConfig',
     ),
 );
