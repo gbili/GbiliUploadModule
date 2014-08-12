@@ -15,8 +15,6 @@ class ContextConfig
           self::ERROR_MISSING_CONFIG_ALIAS      => "'file_uploader':'%s' config, references an alias. But no 'file_uploader':%s isset.",
     );
 
-    protected $sm;
-
     /**
      * Narrowed config
      * Config used to fetch the values
@@ -132,6 +130,20 @@ class ContextConfig
             $this->aliasedConfig  = $config[$configAlias];
         }
 
+        $specificConfig = $this->copyActionConfigToSpecificConfig($specificConfig);
+
+        $this->specificConfig = $specificConfig;
+
+        return $specificConfig; 
+    }
+
+    /**
+     * Unburries the action specific config and copies its contets
+     * to specific config.
+     * @return $specificConfig
+     */
+    protected function copyActionConfigToSpecificConfig($specificConfig)
+    {
         $controllerAction = $this->getControllerAction();
         if (isset($specificConfig['action_override'][$controllerAction])) {
             $actionConfig = $specificConfig['action_override'][$controllerAction];
@@ -145,10 +157,7 @@ class ContextConfig
                 }
             }
         }
-
-        $this->specificConfig = $specificConfig;
-
-        return $specificConfig; 
+        return $specificConfig;
     }
 
     /**
@@ -176,6 +185,17 @@ class ContextConfig
         return $configKey;
     }
 
+    /**
+     * Get config value from different sources
+     * Once the context is sorted out (i.e. the
+     * controller and action are set). The method
+     * will try to fetch the values under keys from
+     * different sources in this order:
+     *  1. Action specific config
+     *  2. Controller specific config
+     *  3. Aliased
+     * @return mixed the value contained in config array or default
+     */
     public function getConfigValue($keys, $default, $allowAlias=true)
     {
         $diver = new ArrayDive();
