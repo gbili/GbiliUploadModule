@@ -144,6 +144,17 @@ class LazyContextConfig
     }
 
     /**
+     * Dive but don't try to resolve aliases
+     */
+    public function diveIntoConfig($config, $keys)
+    {
+        $diver = new ArrayDive();
+        // Check if keys exist in config
+        $diver->has($config, $keys);
+        return $diver;
+    }
+
+    /**
      * Use getDiver to find some config value given some
      * config keys in a specific order|priority
      *
@@ -151,7 +162,7 @@ class LazyContextConfig
      * @param mixed $default the return value if no config is found
      * @return mixed, the config under $keys path or $default 
      */
-    public function getConfigValue($keys, $default=null)
+    public function getConfigValue($keys, $default=null, $allowAlias=true)
     {
         $controllerKey = $this->getControllerKey();
         $controllerAction = $this->getControllerAction();
@@ -166,7 +177,9 @@ class LazyContextConfig
         $configs[] = $this->config;
 
         foreach ($configs as $config) {
-            $diver = $this->diveIntoConfigAndResolveAliased($config, $keys);
+            $diver = ($allowAlias)
+                ? $this->diveIntoConfigAndResolveAliased($config, $keys) 
+                : $this->diveIntoConfig($config, $keys);
             if ($diver->had()) {
                 $return = $diver->got();
                 break;
