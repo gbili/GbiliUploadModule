@@ -95,11 +95,11 @@ class LazyContextConfig
      * the path to config value from  keys
      * If no path is found, check if there is possibly
      * an alias, then get the aliased config and iterate
-     * @return ArrayDiver
+     * @return ArrayDive
      */
     public function getDiver($config, $keys)
     {
-        $diver = new ArrayDiver();
+        $diver = new ArrayDive();
         // Check if keys exist in config
         if ($diver->has($config, $keys)) {
             return $diver;
