@@ -22,10 +22,16 @@ class ArrayDive
      */
     public function get(array $target, $keys)
     {
+        $this->hasPath = true;
         if (is_string($keys) || is_int($keys)) {
             $keys = array($keys);
         }
-        $this->hasPath = true;
+        if (!is_array($keys)) {
+            throw new \Exception('Bad Argument, expecting string int or array as $keys');
+        }
+        if (empty($keys)) {
+            return $target;
+        }
         foreach ($keys as $key) {
             if (!isset($target[$key])) {
                 $this->hasPath = false;

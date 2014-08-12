@@ -124,22 +124,24 @@ class LazyContextConfig
     {
         $controllerKey = $this->getControllerKey();
         $controllerAction = $this->getControllerAction();
+        $configKeysSet = array();
+        $return = $default;
         if (isset($this->config[$controllerKey]['action_override'][$controllerAction])) {
-            $diver = $this->getDiver($this->config[$controllerKey]['action_override'][$controllerAction], $keys);
+            $configKeysSet[] = [$controllerKey, 'action_override', $controllerAction];
+        }
+        if (isset($this->config[$controllerKey])) {
+            $configKeysSet[] = [$controllerKey];
+        }
+        $configKeysSet[] = [];
+
+        foreach ($configKeysSet as $configKeys) {
+            $composedKeys = array_merge($configKeys, $keys);
+            $diver = $this->getDiver($config, $composedKeys);
             if ($diver->had()) {
-                return $diver->got();
-            }
-        } else if (isset($this->config[$controllerKey])) {
-            $diver = $this->getDiver($this->config[$controllerKey], $keys);
-            if ($diver->had()) {
-                return $diver->got();
-            }
-        } else {
-            $diver = $this->getDiver($this->config, $keys);
-            if ($diver->had()) {
-                return $diver->got();
+                $return = $diver->got();
+                break;
             }
         }
-        return $default;
+        return $return;
     }
 }
