@@ -20,9 +20,40 @@ class LazyContextConfig
 
     protected $controllerAction;
 
+    /**
+     * If set to true, loadedConf
+     * will contain all loaded values
+     *
+     * @var boolean
+     */
+    protected $debugMode = false;
+
+    /**
+     * All values that have successfully been loaded
+     * @var array
+     */
+    protected $loadedConf = array();
+
     public function __construct(array $config)
     {
         $this->fullConfig = $config;
+    }
+
+    /**
+     * @param bool $bool whether in debug mode
+     */
+    public function debugMode($bool=true)
+    {
+        $this->debugMode = (boolean) $bool;
+        return $this;
+    }
+
+    public function getLoadedConf()
+    {
+        if (!$this->debugMode) {
+            throw new \Exception('Must be in debug mode to get loaded conf');
+        }
+        return $this->loadedConf;
     }
 
     /**
@@ -97,7 +128,7 @@ class LazyContextConfig
      * an alias, then get the aliased config and iterate
      * @return ArrayDive
      */
-    public function getDiver($config, $keys)
+    public function diveIntoConfigAndResolveAliased($config, $keys)
     {
         $diver = new ArrayDive();
         // Check if keys exist in config
@@ -135,9 +166,12 @@ class LazyContextConfig
         $configs[] = [];
 
         foreach ($configs as $config) {
-            $diver = $this->getDiver($config, $keys);
+            $diver = $this->diveIntoConfigAndResolveAliased($config, $keys);
             if ($diver->had()) {
                 $return = $diver->got();
+                if ($this->debugMode) {
+                    $this->loadedConf['["' . implode('"]["', $keys) . '"]'] = $return;
+                }
                 break;
             }
         }
