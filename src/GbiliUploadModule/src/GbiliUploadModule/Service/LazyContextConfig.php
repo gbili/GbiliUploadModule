@@ -32,7 +32,7 @@ class LazyContextConfig
      * All values that have successfully been loaded
      * @var array
      */
-    protected $loadedConf = array();
+    protected $loadedConfig = array();
 
     public function __construct(array $config)
     {
@@ -48,12 +48,12 @@ class LazyContextConfig
         return $this;
     }
 
-    public function getLoadedConf()
+    public function getLoadedConfig()
     {
         if (!$this->debugMode) {
             throw new \Exception('Must be in debug mode to get loaded conf');
         }
-        return $this->loadedConf;
+        return $this->loadedConfig;
     }
 
     /**
@@ -163,17 +163,17 @@ class LazyContextConfig
         if (isset($this->config[$controllerKey])) {
             $configs[] = $this->config[$controllerKey];
         }
-        $configs[] = [];
+        $configs[] = $this->config;
 
         foreach ($configs as $config) {
             $diver = $this->diveIntoConfigAndResolveAliased($config, $keys);
             if ($diver->had()) {
                 $return = $diver->got();
-                if ($this->debugMode) {
-                    $this->loadedConf['["' . implode('"]["', $keys) . '"]'] = $return;
-                }
                 break;
             }
+        }
+        if ($this->debugMode) {
+            $this->loadedConf['["' . implode('"]["', $keys) . '"]'] = $return;
         }
         return $return;
     }
