@@ -36,7 +36,18 @@ class LazyContextConfig
 
     public function __construct(array $config)
     {
+        $this->setFullConfig($config);
+    }
+
+    public function getFullConfig()
+    {
+        return $this->fullConfig;
+    }
+
+    public function setFullConfig(array $config)
+    {
         $this->fullConfig = $config;
+        return $this;
     }
 
     /**
