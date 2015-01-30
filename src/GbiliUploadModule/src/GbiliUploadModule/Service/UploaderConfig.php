@@ -97,7 +97,7 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
     {
         $fileHydrator = $this->config->getConfigValue(['service', 'file_hydrator'], false); 
         if (!$fileHydrator) {
-            throw new \Exception('You must set a file hydrator to allow the "uploader" to save entities');
+            throw new \Exception('You must set a file hydrator to allow the "uploader" to save entities. There is a file_hydrator registered as "gbiliupmFileHydrator" in GbiliMediaEntityModule.');
         }
         return $this->sm->get($fileHydrator);
     }

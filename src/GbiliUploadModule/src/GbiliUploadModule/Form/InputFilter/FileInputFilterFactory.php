@@ -2,7 +2,7 @@
 namespace GbiliUploadModule\Form\InputFilter;
 
 /**
- * Creates an input filter an allows to pass a renameupload filter
+ * Creates an input filter and allows to pass a renameupload filter
  * as file_input_filter key in options array
  * It will also attempt to retrieve one from the plugin manager if
  * the name is provided under ['file_input_filter']['name']
