@@ -58,6 +58,11 @@ class UploaderConfig implements UploaderServiceConfigInterface, UploaderControll
     {
         $filterOptions = $this->config->getConfigValue(['form', 'file_input_filter_options'], array());
         $uploadTarget = $this->config->getConfigValue(['form', 'file_upload_dirpath'], null);
+
+        if (null === $uploadTarget) {
+            throw new \Exception('Missing file uploader config key. \'file_upload_dirpath\' is missing. It should containt the path where files are uploaded. E.g. /path/to/public/img');
+        }
+
         if (is_string($uploadTarget)) {
             $filterOptions['target'] = $uploadTarget . '/media.jpg';
         }
